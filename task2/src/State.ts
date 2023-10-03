@@ -9,9 +9,9 @@ export class State {
   }
 
   processMessage(msg: Message): void {
-    Object.keys(this.rooms).includes(msg.roomName)
-      ? this.rooms[msg.roomName].addMessage(msg)
-      : (this.rooms[msg.roomName] = new Room(msg.roomName, []));
+    if (!Object.keys(this.rooms).includes(msg.roomName)) {
+      this.rooms[msg.roomName] = new Room(msg.roomName, []);
+    }
     this.rooms[msg.roomName].addMessage(msg);
   }
 }
