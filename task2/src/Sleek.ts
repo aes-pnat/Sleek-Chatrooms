@@ -1,3 +1,19 @@
+import { Message } from "./Message";
+import { Room } from "./Room";
+import { State } from "./State";
+
+const MessageQueue = (state: State, queue: string[]) => {
+  queue.forEach((e) => {
+    var pack = e.split("@")[1];
+    var roomName = pack.split(" ")[0];
+    var content = pack.substring(roomName.length + 1);
+
+    var message = new Message(roomName, content);
+    state.processMessage(message);
+  });
+  return state;
+};
+
 const queue = [
   `-@numb Hello?`,
   `-@happy Here's a little song I wrote`,
@@ -16,23 +32,8 @@ const queue = [
   `-@son BaDa-Da-Dum BaDa-Da-Da-Dum`,
 ];
 
-const MessageQueue = (queue: string[]) => {
-  type StateType = {
-    [key: string]: string[];
-  };
-  const state: StateType = {};
+let state = new State();
 
-  queue.forEach((e) => {
-    var pack = e.split("@")[1];
-    var room = pack.split(" ")[0];
-    var msg = pack.substring(room.length + 1);
+const result = MessageQueue(state, queue);
 
-    if (!Object.keys(state).includes(room)) {
-      state[room] = [];
-    }
-    state[room] = [...state[room], msg];
-  });
-  return state;
-};
-
-console.log(JSON.stringify(MessageQueue(queue), null, 2));
+console.log(JSON.stringify(result, null, 2));
