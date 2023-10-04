@@ -1,6 +1,5 @@
 import { Alert } from "./Alert";
 import { Message } from "./Message";
-import { User } from "./User";
 
 export class Room {
   public name: string;
