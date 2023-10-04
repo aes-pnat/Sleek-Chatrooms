@@ -1,9 +1,7 @@
 export class Message {
-  roomName: string;
-  content: string;
+  public content: string;
 
-  constructor(roomName: string, content: string) {
-    this.roomName = roomName;
+  constructor(content: string) {
     this.content = content;
   }
 }

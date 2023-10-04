@@ -1,18 +1,4 @@
-import { Message } from "./Message";
-import { Room } from "./Room";
-import { State } from "./State";
-
-const MessageQueue = (state: State, queue: string[]) => {
-  queue.forEach((e) => {
-    var pack = e.split("@")[1];
-    var roomName = pack.split(" ")[0];
-    var content = pack.substring(roomName.length + 1);
-
-    var message = new Message(roomName, content);
-    state.processMessage(message);
-  });
-  return state;
-};
+import { ChatServer } from "./ChatServer";
 
 const queue = [
   `-@numb Hello?`,
@@ -32,8 +18,7 @@ const queue = [
   `-@son BaDa-Da-Dum BaDa-Da-Da-Dum`,
 ];
 
-let state = new State();
+let state = new ChatServer();
+state.processQueue(queue);
 
-const result = MessageQueue(state, queue);
-
-console.log(JSON.stringify(result, null, 2));
+console.log(JSON.stringify(state, null, 2));

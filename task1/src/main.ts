@@ -1,8 +1,9 @@
 function palindrome(inp: string): string {
   var reversed = inp.split("").reverse().join("");
-  if (inp === reversed) {
-    return reversed;
-  }
+  return inp === reversed ? reversed : inp;
+}
+
+function palindromeActualTask(inp: string): string {
   return inp;
 }
 
