@@ -1,9 +1,9 @@
-import { Alert } from "./Alert";
+import { Bot } from "./Bot";
 import { Message } from "./Message";
 
 export class Room {
   public name: string;
-  public messages: (Message | Alert)[] = [];
+  public messages: Message[] = [];
   public users: string[] = [];
 
   constructor(name: string) {
@@ -11,10 +11,14 @@ export class Room {
   }
 
   public addMessage(msg: Message): void {
-    if (!this.users.includes(msg.sender.userName)) {
-      this.users.push(msg.sender.userName);
+    if (!this.users.includes(msg.sender.name)) {
+      this.users.push(msg.sender.name);
       this.messages.push(
-        new Alert(`"${msg.sender.userName}" joined the room`, new Date())
+        new Message(
+          `"${msg.sender.name}" joined the room`,
+          new Bot("SERVER"),
+          new Date()
+        )
       );
     }
     this.messages.push(msg);

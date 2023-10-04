@@ -18,7 +18,6 @@ export class ChatServer {
       var roomAndMessage = e.split("@")[1];
       var roomName = roomAndMessage.split(" ")[0];
       var messageContent = roomAndMessage.substring(roomName.length + 1);
-
       var message = new Message(messageContent, new User(userName), new Date());
       this.processMessage(message, roomName);
     });

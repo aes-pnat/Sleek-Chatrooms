@@ -1,13 +1,13 @@
-import { User } from "./User";
+import { Figure } from "./Figure";
 
 export class Message {
   public content: string;
-  public sender: User;
+  public sender: Figure;
   public datetime: Date | undefined;
 
   constructor(
     content: string,
-    sender: User,
+    sender: Figure,
     datetime: Date | undefined = undefined
   ) {
     this.content = content;

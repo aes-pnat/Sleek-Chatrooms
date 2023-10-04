@@ -7,11 +7,7 @@ function printState(state: ChatServer): string {
     var currentRoom = state.rooms[i];
     output += `Room "${currentRoom.name}" messages:\n`;
     currentRoom.messages.forEach((j) => {
-      j instanceof Message
-        ? (output += `- [${j.getTimestamp()}] ${j.sender.userName}: ${
-            j.content
-          }\n`)
-        : (output += `- [${j.getTimestamp()}] SERVER: ${j.content}\n`);
+      output += `- [${j.getTimestamp()}] ${j.sender.name}: ${j.content}\n`;
     });
     output += `\n`;
   });
