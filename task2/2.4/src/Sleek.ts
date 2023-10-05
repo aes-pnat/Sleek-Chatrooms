@@ -1,13 +1,22 @@
+import { Bot } from "./Bot";
 import { ChatServer } from "./ChatServer";
 import { Message } from "./Message";
 import { Room } from "./Room";
+import { User } from "./User";
 
-function messageCallback(room: Room, msg: Message) {
-  var out = `POSTing message: "${msg.getSender().getName()}@${
-    room.getName
-  } ${msg.getContent()}"`;
+function messageCallback(user: User, room: Room, msg: Message) {
+  if (msg.getSender() instanceof Bot) {
+    console.log(
+      `To "${user.getName()}" ::: Announcement in room "${room.getName()}": ${msg.getContent()}`
+    );
+  } else {
+    console.log(
+      `To "${user.getName()}" ::: "${msg
+        .getSender()
+        .getName()}" posted in "${room.getName()}": "${msg.getContent()}"`
+    );
+  }
 }
-
 const queue = [
   `roger@numb Hello?`,
   `bobby@happy Here's a little song I wrote`,
@@ -34,6 +43,7 @@ async function processQueue(queue: string[]) {
   let state = new ChatServer(messageCallback);
   for (const e of queue) {
     await sleep(1000 * (1 + Math.random()));
+    console.log(`\nPOSTing message: "${e}"`);
     state.processMessage(e);
   }
   console.log(state.printState());

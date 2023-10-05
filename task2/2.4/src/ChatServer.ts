@@ -7,7 +7,7 @@ import { Figure } from "./Figure";
 export class ChatServer {
   private rooms: Record<string, Room> = {};
   private figures: Record<string, Figure> = { SERVER: new Bot("SERVER") };
-  private msgCallback: (room: Room, msg: Message) => void;
+  private msgCallback: (user: User, room: Room, msg: Message) => void;
 
   public getRooms(): Record<string, Room> {
     return this.rooms;
@@ -25,7 +25,7 @@ export class ChatServer {
     this.figures = figures;
   }
 
-  constructor(callback: (room: Room, msg: Message) => void) {
+  constructor(callback: (user: User, room: Room, msg: Message) => void) {
     this.msgCallback = callback;
   }
 
@@ -52,14 +52,19 @@ export class ChatServer {
         ...this.rooms[roomName].getUsers(),
         message.getSender(),
       ]);
-      this.rooms[roomName].addMessage(
-        new Message(
-          `"${message.getSender().getName()}" joined the room`,
-          this.figures["SERVER"],
-          new Date()
-        )
+      var serverMessage = new Message(
+        `"${message.getSender().getName()}" joined the room`,
+        this.figures["SERVER"],
+        new Date()
       );
+      this.rooms[roomName].getUsers().forEach((userRecipient) => {
+        this.msgCallback(userRecipient, this.rooms[roomName], serverMessage);
+      });
+      this.rooms[roomName].addMessage(serverMessage);
     }
+    this.rooms[roomName].getUsers().forEach((userRecipient) => {
+      this.msgCallback(userRecipient, this.rooms[roomName], message);
+    });
     this.rooms[roomName].addMessage(message);
   }
 
