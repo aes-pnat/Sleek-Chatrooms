@@ -1,32 +1,29 @@
 import { Figure } from "./Figure";
 
 export class Message {
-  private content: string;
-  private sender: Figure;
-  private datetime: Date | undefined;
+  private _content: string;
+  private _sender: Figure;
+  private _datetime: Date | undefined;
 
-  public getContent(): string {
-    return this.content;
+  public get content(): string {
+    return this._content;
+  }
+  public set content(value: string) {
+    this._content = value;
   }
 
-  public setContent(content: string): void {
-    this.content = content;
+  public get sender(): Figure {
+    return this._sender;
+  }
+  public set sender(value: Figure) {
+    this._sender = value;
   }
 
-  public getSender(): Figure {
-    return this.sender;
+  public get datetime(): Date | undefined {
+    return this._datetime;
   }
-
-  public setSender(sender: Figure): void {
-    this.sender = sender;
-  }
-
-  public getDatetime(): Date | undefined {
-    return this.datetime;
-  }
-
-  public setDatetime(datetime: Date): void {
-    this.datetime = datetime;
+  public set datetime(value: Date | undefined) {
+    this._datetime = value;
   }
 
   constructor(
@@ -34,9 +31,9 @@ export class Message {
     sender: Figure,
     datetime: Date | undefined = undefined
   ) {
-    this.content = content;
-    this.sender = sender;
-    this.datetime = datetime;
+    this._content = content;
+    this._sender = sender;
+    this._datetime = datetime;
   }
 
   public getTimestamp(): string {

@@ -4,16 +4,19 @@ import { Message } from "./Message";
 import { Room } from "./Room";
 import { User } from "./User";
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function messageCallback(user: User, room: Room, msg: Message) {
-  if (msg.getSender() instanceof Bot) {
+  sleep(500 * (1 + Math.random()));
+  if (msg.sender instanceof Bot) {
     console.log(
-      `To "${user.getName()}" ::: Announcement in room "${room.getName()}": ${msg.getContent()}`
+      `To "${user.name}" ::: Announcement in room "${room.name}": ${msg.content}`
     );
   } else {
     console.log(
-      `To "${user.getName()}" ::: "${msg
-        .getSender()
-        .getName()}" posted in "${room.getName()}": "${msg.getContent()}"`
+      `To "${user.name}" ::: "${msg.sender.name}" posted in "${room.name}": "${msg.content}"`
     );
   }
 }
@@ -34,10 +37,6 @@ const queue = [
   `roger@numb Is there anyone home?`,
   `kerry@son BaDa-Da-Dum BaDa-Da-Da-Dum`,
 ];
-
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 async function processQueue(queue: string[]) {
   let state = new ChatServer(messageCallback);

@@ -3,39 +3,36 @@ import { Message } from "./Message";
 import { User } from "./User";
 
 export class Room {
-  private name: string;
-  private messages: Message[] = [];
-  private users: User[] = [];
+  private _name: string;
+  private _messages: Message[] = [];
+  private _users: User[] = [];
 
-  public getName(): string {
-    return this.name;
+  public get name(): string {
+    return this._name;
+  }
+  public set name(value: string) {
+    this._name = value;
   }
 
-  public setName(name: string): void {
-    this.name = name;
+  public get messages(): Message[] {
+    return this._messages;
+  }
+  public set messages(value: Message[]) {
+    this._messages = value;
   }
 
-  public getMessages(): Message[] {
-    return this.messages;
+  public get users(): User[] {
+    return this._users;
   }
-
-  public setMessages(messages: Message[]): void {
-    this.messages = messages;
-  }
-
-  public getUsers(): User[] {
-    return this.users;
-  }
-
-  public setUsers(users: User[]): void {
-    this.users = users;
+  public set users(value: User[]) {
+    this._users = value;
   }
 
   constructor(name: string) {
-    this.name = name;
+    this._name = name;
   }
 
   public addMessage(msg: Message): void {
-    this.messages.push(msg);
+    this._messages.push(msg);
   }
 }

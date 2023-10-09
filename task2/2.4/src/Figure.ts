@@ -1,15 +1,14 @@
 export class Figure {
-  private name: string;
+  private _name: string;
 
-  public getName(): string {
-    return this.name;
+  public get name(): string {
+    return this._name;
   }
-
-  public setName(name: string): void {
-    this.name = name;
+  public set name(value: string) {
+    this._name = value;
   }
 
   constructor(name: string) {
-    this.name = name;
+    this._name = name;
   }
 }
