@@ -9,7 +9,6 @@ function sleep(ms: number) {
 }
 
 function messageCallback(user: User, room: Room, msg: Message) {
-  sleep(500 * (1 + Math.random()));
   if (msg.sender instanceof Bot) {
     console.log(
       `To "${user.name}" ::: Announcement in room "${room.name}": ${msg.content}`
