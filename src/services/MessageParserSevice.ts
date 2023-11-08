@@ -1,7 +1,8 @@
-import userStore from "./UserStore";
-import roomStore from "./RoomStore";
-import { Message } from "./models/Message";
-class MessageParser {
+import userStore from "../UsersDataStore";
+import roomStore from "../RoomsDataStore";
+import { Message } from "../models/Message";
+
+class MessageParserService {
   public parseMessage(msg: string) {
     let userName = msg.split("@")[0].split(":")[0];
     let roomAndMessage = msg.split("@")[1];
@@ -23,4 +24,4 @@ class MessageParser {
   }
 }
 
-export default new MessageParser();
+export default new MessageParserService();

@@ -1,13 +1,13 @@
-import { Bot } from "./models/Bot";
-import { Message } from "./models/Message";
-import { User } from "./models/User";
+import { Bot } from "./src/models/Bot";
+import { Message } from "./src/models/Message";
+import { User } from "./src/models/User";
 import "colors";
 
 export function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function colorByName(text: string, name: string) {
+export function colorByName(text: string, name: string) {
   switch (name) {
     case "SERVER":
       return text.bgRed;

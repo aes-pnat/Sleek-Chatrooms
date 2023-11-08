@@ -1,17 +1,5 @@
-import { ChatServer } from "./ChatServer";
-
-function printState(state: ChatServer): string {
-  var output = "";
-  Object.keys(state.rooms).forEach((i) => {
-    var currentRoom = state.rooms[i];
-    output += `Room "${currentRoom.name}" messages:\n`;
-    currentRoom.messages.forEach((j) => {
-      output += `- [${j.getTimestamp()}] ${j.user.userName}: ${j.content}\n`;
-    });
-    output += `\n`;
-  });
-  return output;
-}
+import App from "./src/Sleek";
+import { messageCallback, wait } from "./utils";
 
 const queue = [
   `roger@numb Hello?`,
@@ -31,7 +19,13 @@ const queue = [
   `kerry@son BaDa-Da-Dum BaDa-Da-Da-Dum`,
 ];
 
-let state = new ChatServer();
-state.processQueue(queue);
+App.setOutputChannel(messageCallback);
 
-console.log(printState(state));
+const main = async (queue: string[]) => {
+  for (const e of queue) {
+    await wait(500 * (1 + Math.random()));
+    App.acceptMessage(e);
+  }
+};
+
+main(queue);
