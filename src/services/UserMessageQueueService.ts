@@ -6,7 +6,12 @@ import { colorByName } from "../../utils";
 var colors = require("colors/safe");
 
 type QueueCollection = {
-  [key: string]: Record<string, Array<() => Promise<void>>>;
+  [key: string]: {
+    [key: string]: {
+      q: Array<() => Promise<void>>;
+      cs: boolean;
+    };
+  };
 };
 class UserMessageQueueService {
   public queue: QueueCollection = {};
@@ -22,23 +27,30 @@ class UserMessageQueueService {
       this.queue[msg.room.name] = {};
     }
     if (!this.queue[msg.room.name][userRecipient.name]) {
-      this.queue[msg.room.name][userRecipient.name] = [];
+      this.queue[msg.room.name][userRecipient.name] = { q: [], cs: false };
+      //critical_section = false;
     }
-    this.queue[msg.room.name][userRecipient.name].push(() =>
+    this.queue[msg.room.name][userRecipient.name].q.push(() =>
       this.callback(userRecipient, msg)
     );
 
-    if (this.queue[msg.room.name][userRecipient.name].length === 1) {
+    if (this.queue[msg.room.name][userRecipient.name].q.length === 1) {
       this.processQueue(msg.room.name, userRecipient.name);
     }
   }
 
   public async processQueue(room: string, user: string) {
-    this.queue[room][user].shift()!().then(() => {
-      if (this.queue[room][user].length >= 1) {
-        this.processQueue(room, user);
-      }
-    });
+    if (this.queue[room][user].cs) {
+      return;
+    } else {
+      this.queue[room][user].cs = true;
+      await this.queue[room][user].q.shift()!().then(() => {
+        this.queue[room][user].cs = false;
+        if (this.queue[room][user].q.length >= 1) {
+          this.processQueue(room, user);
+        }
+      });
+    }
   }
 }
 
