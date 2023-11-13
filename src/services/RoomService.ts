@@ -1,6 +1,7 @@
 import { Message } from "../models/Message";
 import { User } from "../models/User";
 import UserDataStore from "../UsersDataStore";
+import CommandExecutionerService from "./CommandExecutionerService";
 import UserMessageQueueService from "./UserMessageQueueService";
 
 class RoomService {
@@ -13,7 +14,7 @@ class RoomService {
 
       let serverMessage = new Message(
         `"${msg.sender.name}" joined the room`,
-        UserDataStore.users["SERVER"],
+        UserDataStore.getUserByName("SERVER")!,
         msg.room,
         new Date()
       );
@@ -24,12 +25,17 @@ class RoomService {
       msg.room.messages.push(serverMessage);
     }
 
-    /* Message itself */
-    msg.room.users.forEach((userRecipient) => {
-      UserMessageQueueService.enqueue(userRecipient, msg);
-    });
+    if (msg.isCommand) {
+      /* Command */
+      CommandExecutionerService.executeCommand(msg);
+    } else {
+      /* Message itself */
+      msg.room.users.forEach((userRecipient) => {
+        UserMessageQueueService.enqueue(userRecipient, msg);
+      });
 
-    msg.room.messages.push(msg);
+      msg.room.messages.push(msg);
+    }
   }
 }
 

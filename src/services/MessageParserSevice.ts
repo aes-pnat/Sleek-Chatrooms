@@ -4,22 +4,26 @@ import { Message } from "../models/Message";
 
 class MessageParserService {
   public parseMessage(msg: string) {
+    // [USERNAME[:ANYTHING]]@ID /COMMAND [ARG [ARG [ARG [...]]]]
+    // username, id, arg not /[A-Za-z0-9_\-]/
     let userName = msg.split("@")[0].split(":")[0];
-    let roomAndMessage = msg.split("@")[1];
-    let roomName = roomAndMessage.split(" ")[0];
-    let content = roomAndMessage.substring(roomName.length + 1);
+    let roomCommandOrMessage = msg.split("@")[1];
+    let roomName = roomCommandOrMessage.split(" ")[0];
+    let content = roomCommandOrMessage.substring(roomName.length + 1);
 
-    if (!userStore.users[userName]) {
+    if (!userStore.getUserByName(userName)) {
       userStore.addUser(userName);
     }
-    if (!roomStore.rooms[roomName]) {
+    if (!roomStore.getRoomByName(roomName)) {
       roomStore.addRoom(roomName);
     }
+
     return new Message(
       content,
-      userStore.users[userName],
-      roomStore.rooms[roomName],
-      new Date()
+      userStore.getUserByName(userName)!,
+      roomStore.getRoomByName(roomName)!,
+      new Date(),
+      content.startsWith("/")
     );
   }
 }

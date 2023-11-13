@@ -6,17 +6,20 @@ export class Message {
   public sender: User;
   public room: Room;
   public datetime: Date | undefined;
+  public isCommand: boolean;
 
   constructor(
     content: string,
     sender: User,
     room: Room,
-    datetime: Date | undefined = undefined
+    datetime: Date | undefined = undefined,
+    isCommand: boolean = false
   ) {
     this.content = content;
     this.sender = sender;
     this.room = room;
     this.datetime = datetime;
+    this.isCommand = isCommand;
   }
 
   public getTimestamp(): string {

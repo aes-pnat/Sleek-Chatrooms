@@ -17,8 +17,7 @@ class Sleek {
 
   public printState(): string {
     let output = "";
-    Object.keys(RoomDataStore.rooms).forEach((i) => {
-      let currentRoom = RoomDataStore.rooms[i];
+    RoomDataStore.rooms.forEach((currentRoom) => {
       output += `Room "${currentRoom.name}" messages:\n`;
       currentRoom.messages.forEach((j) => {
         output += `- [${j.getTimestamp()}] ${j.sender.name}: ${j.content}\n`;
