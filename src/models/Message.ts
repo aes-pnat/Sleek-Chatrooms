@@ -12,14 +12,13 @@ export class Message {
     content: string,
     sender: User,
     room: Room,
-    datetime: Date | undefined = undefined,
-    isCommand: boolean = false
+    datetime: Date | undefined = undefined
   ) {
     this.content = content;
     this.sender = sender;
     this.room = room;
     this.datetime = datetime;
-    this.isCommand = isCommand;
+    this.isCommand = content.startsWith("/");
   }
 
   public getTimestamp(): string {

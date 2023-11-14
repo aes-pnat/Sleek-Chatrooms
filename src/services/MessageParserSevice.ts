@@ -22,8 +22,7 @@ class MessageParserService {
       content,
       userStore.getUserByName(userName)!,
       roomStore.getRoomByName(roomName)!,
-      new Date(),
-      content.startsWith("/")
+      new Date()
     );
   }
 }

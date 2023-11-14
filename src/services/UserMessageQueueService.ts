@@ -34,17 +34,15 @@ class UserMessageQueueService {
       this.callback(userRecipient, msg)
     );
 
-    if (this.queue[msg.room.name][userRecipient.name].q.length === 1) {
-      this.processQueue(msg.room.name, userRecipient.name);
-    }
+    this.processQueue(msg.room.name, userRecipient.name);
   }
 
-  public async processQueue(room: string, user: string) {
+  public processQueue(room: string, user: string) {
     if (this.queue[room][user].cs) {
       return;
     } else {
       this.queue[room][user].cs = true;
-      await this.queue[room][user].q.shift()!().then(() => {
+      this.queue[room][user].q.shift()!().then(() => {
         this.queue[room][user].cs = false;
         if (this.queue[room][user].q.length >= 1) {
           this.processQueue(room, user);
