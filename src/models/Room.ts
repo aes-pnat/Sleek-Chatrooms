@@ -1,14 +1,15 @@
 import { Message } from "./Message";
 import { User } from "./User";
 
+const crypto = require("crypto");
 export class Room {
-  public id: number;
+  public uuid: string;
   public name: string;
   public messages: Message[] = [];
-  public users: User[] = [];
+  public users: string[] = [];
 
-  constructor(id: number, name: string) {
-    this.id = id;
+  constructor(name: string) {
+    this.uuid = crypto.randomUUID();
     this.name = name;
   }
 }

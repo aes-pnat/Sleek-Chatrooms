@@ -2,6 +2,9 @@ import "colors";
 import { User } from "../models/User";
 import { Message } from "../models/Message";
 import { colorByName } from "../../utils";
+import UsersDataStore from "../UsersDataStore";
+import RoomsDataStore from "../RoomsDataStore";
+import { Bot } from "../models/Bot";
 
 var colors = require("colors/safe");
 
@@ -17,24 +20,35 @@ class UserMessageQueueService {
   public queue: QueueCollection = {};
   public callback: Function = console.log;
 
-  public async enqueue(userRecipient: User, msg: Message) {
+  public async enqueue(userRecipientID: string, msg: Message) {
+    let userRecipient = UsersDataStore.getUserById(userRecipientID)!;
+    let userSender = UsersDataStore.getUserById(msg.senderID)!;
+    let room = RoomsDataStore.getRoomById(msg.roomID);
+
     console.log(
       colors.bold(`   Enqueueing message for `) +
         colorByName(userRecipient.name, userRecipient.name) +
         colors.bold(`: ${msg.content} `)
     );
-    if (!this.queue[msg.room.name]) {
-      this.queue[msg.room.name] = {};
+    if (!this.queue[room!.uuid]) {
+      this.queue[room!.uuid] = {};
     }
-    if (!this.queue[msg.room.name][userRecipient.name]) {
-      this.queue[msg.room.name][userRecipient.name] = { q: [], cs: false };
+    if (!this.queue[room!.uuid][userRecipient.uuid]) {
+      this.queue[room!.uuid][userRecipient.uuid] = { q: [], cs: false };
       //critical_section = false;
     }
-    this.queue[msg.room.name][userRecipient.name].q.push(() =>
-      this.callback(userRecipient, msg)
+    this.queue[room!.uuid][userRecipient.uuid].q.push(() =>
+      this.callback(
+        userSender instanceof Bot,
+        room!.name,
+        userRecipient.name,
+        userSender.name,
+        msg.content,
+        msg.getTimestamp()
+      )
     );
 
-    this.processQueue(msg.room.name, userRecipient.name);
+    this.processQueue(room!.uuid, userRecipient.uuid);
   }
 
   public processQueue(room: string, user: string) {

@@ -7,7 +7,13 @@ class CommandExecutionerService {
   public executeCommand(msg: Message) {
     let command = msg.content.split(" ")[0].slice(1);
     let args = msg.content.split(" ").slice(1);
-    console.log(`Executing command: "${command}" with args: "${args}"`);
+    let room = RoomsDataStore.getRoomById(msg.roomID)!;
+    let sender = UsersDataStore.getUserById(msg.senderID)!;
+    let server = UsersDataStore.getUserByName("SERVER")!;
+
+    console.log(
+      `{${sender.name}} Executing command: "${command}" with args: "${args}"`
+    );
     let cmdResponse: Message;
 
     switch (command) {
@@ -16,31 +22,40 @@ class CommandExecutionerService {
           case "rooms":
             cmdResponse = new Message(
               RoomsDataStore.rooms.map((room) => room.name).join(", "),
-              UsersDataStore.getUserByName("SERVER")!,
-              msg.room,
+              server.uuid,
+              room.uuid,
               new Date()
             );
-            UserMessageQueueService.enqueue(msg.sender, cmdResponse);
+            UserMessageQueueService.enqueue(sender.uuid, cmdResponse);
             break;
 
           case "users":
             cmdResponse = new Message(
-              msg.room.users.map((user) => user.name).join(", "),
-              UsersDataStore.getUserByName("SERVER")!,
-              msg.room,
+              room.users
+                .map((userID) => UsersDataStore.getUserById(userID))
+                .join(", "),
+              server.uuid,
+              room.uuid,
               new Date()
             );
-            UserMessageQueueService.enqueue(msg.sender, cmdResponse);
+            UserMessageQueueService.enqueue(sender.uuid, cmdResponse);
             break;
 
           case "messages":
             cmdResponse = new Message(
-              msg.room.messages.map((message) => message.content).join("\n"),
-              UsersDataStore.getUserByName("SERVER")!,
-              msg.room,
+              room.messages
+                .map(
+                  (message) =>
+                    ` ${UsersDataStore.getUserById(message.senderID)!.name}: ${
+                      message.content
+                    }`
+                )
+                .join("\n"),
+              server.uuid,
+              room.uuid,
               new Date()
             );
-            UserMessageQueueService.enqueue(msg.sender, cmdResponse);
+            UserMessageQueueService.enqueue(msg.senderID, cmdResponse);
             break;
 
           default:
@@ -51,35 +66,35 @@ class CommandExecutionerService {
       case "rename":
         switch (args[0]) {
           case "room":
-            msg.room.name = args[1];
+            room.name = args[1];
             cmdResponse = new Message(
-              `User ${msg.sender.name} renamed room to "${args[1]}"`,
-              UsersDataStore.getUserByName("SERVER")!,
-              msg.room,
+              `User ${sender.name} renamed room to "${args[1]}"`,
+              server.uuid,
+              room.uuid,
               new Date()
             );
 
-            msg.room.users.forEach((userRecipient) => {
-              UserMessageQueueService.enqueue(userRecipient, cmdResponse);
+            room.users.forEach((userRecipientID) => {
+              UserMessageQueueService.enqueue(userRecipientID, cmdResponse);
             });
 
-            msg.room.messages.push(cmdResponse);
+            room.messages.push(cmdResponse);
             break;
 
           case "self":
-            msg.sender.name = args[1];
+            sender.name = args[1];
             cmdResponse = new Message(
-              `User ${msg.sender.name} renamed themselves to "${args[1]}"`,
-              UsersDataStore.getUserByName("SERVER")!,
-              msg.room,
+              `User ${sender.name} renamed themselves to "${args[1]}"`,
+              server.uuid,
+              room.uuid,
               new Date()
             );
 
-            msg.room.users.forEach((userRecipient) => {
-              UserMessageQueueService.enqueue(userRecipient, cmdResponse);
+            room.users.forEach((userRecipientID) => {
+              UserMessageQueueService.enqueue(userRecipientID, cmdResponse);
             });
 
-            msg.room.messages.push(cmdResponse);
+            room.messages.push(cmdResponse);
             break;
 
           default:

@@ -7,6 +7,7 @@ const queue = [
   `echo@numb Hello ...`,
   `steve@son Carry on, my wayward son`,
   `echo:@numb Hello ...`,
+  `echo:@numb /list rooms`,
   `bobby:@happy You might want to sing it note for note`,
   `roger:@numb Is there anybody in there?`,
   `steve@son There'll be peace when you are done`,

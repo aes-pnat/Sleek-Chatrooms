@@ -1,28 +1,35 @@
 import { Message } from "../models/Message";
 import { User } from "../models/User";
+import RoomsDataStore from "../RoomsDataStore";
 import UserDataStore from "../UsersDataStore";
 import CommandExecutionerService from "./CommandExecutionerService";
 import UserMessageQueueService from "./UserMessageQueueService";
 
 class RoomService {
   public msgToRoom(msg: Message) {
-    if (!(msg.sender instanceof User)) throw Error();
+    let sender = UserDataStore.getUserById(msg.senderID);
+    let room = RoomsDataStore.getRoomById(msg.roomID);
+
+    if (!sender) throw Error(`Sender not found on message: ${msg}`);
+    if (!room) throw Error(`Room not found on message: ${msg}`);
+
+    if (!(sender instanceof User)) throw Error();
 
     /* Room join alert */
-    if (!msg.room.users.includes(msg.sender)) {
-      msg.room.users.push(msg.sender);
+    if (!room.users.includes(sender.uuid)) {
+      room.users.push(sender.uuid);
 
       let serverMessage = new Message(
-        `"${msg.sender.name}" joined the room`,
-        UserDataStore.getUserByName("SERVER")!,
-        msg.room,
+        `"${sender.name}" joined the room`,
+        UserDataStore.getUserByName("SERVER")!.uuid,
+        room.uuid,
         new Date()
       );
 
-      msg.room.users.forEach((userRecipient) => {
-        UserMessageQueueService.enqueue(userRecipient, serverMessage);
+      room.users.forEach((userRecipientID) => {
+        UserMessageQueueService.enqueue(userRecipientID, serverMessage);
       });
-      msg.room.messages.push(serverMessage);
+      room.messages.push(serverMessage);
     }
 
     if (msg.isCommand) {
@@ -30,11 +37,11 @@ class RoomService {
       CommandExecutionerService.executeCommand(msg);
     } else {
       /* Message itself */
-      msg.room.users.forEach((userRecipient) => {
+      room.users.forEach((userRecipient) => {
         UserMessageQueueService.enqueue(userRecipient, msg);
       });
 
-      msg.room.messages.push(msg);
+      room.messages.push(msg);
     }
   }
 }

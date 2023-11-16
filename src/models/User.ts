@@ -1,9 +1,10 @@
+const crypto = require("crypto");
 export class User {
-  public id: number;
+  public uuid: string;
   public name: string;
 
-  constructor(id: number, name: string) {
-    this.id = id;
+  constructor(name: string) {
+    this.uuid = crypto.randomUUID();
     this.name = name;
   }
 }

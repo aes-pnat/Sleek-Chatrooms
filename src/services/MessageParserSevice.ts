@@ -1,5 +1,5 @@
-import userStore from "../UsersDataStore";
-import roomStore from "../RoomsDataStore";
+import UserDataStore from "../UsersDataStore";
+import RoomDataStore from "../RoomsDataStore";
 import { Message } from "../models/Message";
 
 class MessageParserService {
@@ -11,17 +11,17 @@ class MessageParserService {
     let roomName = roomCommandOrMessage.split(" ")[0];
     let content = roomCommandOrMessage.substring(roomName.length + 1);
 
-    if (!userStore.getUserByName(userName)) {
-      userStore.addUser(userName);
+    if (!UserDataStore.getUserByName(userName)) {
+      UserDataStore.addUser(userName);
     }
-    if (!roomStore.getRoomByName(roomName)) {
-      roomStore.addRoom(roomName);
+    if (!RoomDataStore.getRoomByName(roomName)) {
+      RoomDataStore.addRoom(roomName);
     }
 
     return new Message(
       content,
-      userStore.getUserByName(userName)!,
-      roomStore.getRoomByName(roomName)!,
+      UserDataStore.getUserByName(userName)!.uuid,
+      RoomDataStore.getRoomByName(roomName)!.uuid,
       new Date()
     );
   }

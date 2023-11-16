@@ -1,6 +1,3 @@
-import { Bot } from "./src/models/Bot";
-import { Message } from "./src/models/Message";
-import { User } from "./src/models/User";
 import "colors";
 
 export function wait(ms: number) {
@@ -26,37 +23,27 @@ export function colorByName(text: string, name: string) {
   }
 }
 
-export async function messageCallback(user: User, msg: Message): Promise<void> {
+export async function messageCallback(
+  isBotMessage: boolean,
+  roomName: string,
+  userRecipient: string,
+  userSender: string,
+  msgContent: string,
+  msgTimestamp: string
+): Promise<void> {
   let alert;
   await wait(500 * (1 + Math.random()));
-  if (msg.sender instanceof Bot) {
+  if (isBotMessage) {
+    // msg.sender instanceof Bot
     alert = colorByName(
-      `[${msg.getTimestamp()}] To "${user.name}" ::: Announcement in room "${
-        msg.room.name
-      }": ${msg.content}`,
-      user.name
+      `[${msgTimestamp}] To "${userRecipient}" ::: Announcement in room "${roomName}": ${msgContent}`,
+      userRecipient
     );
   } else {
     alert = colorByName(
-      `[${msg.getTimestamp()}] To "${user.name}" ::: "${
-        msg.sender.name
-      }" posted in "${msg.room.name}": "${msg.content}"`,
-      user.name
+      `[${msgTimestamp}] To "${userRecipient}" ::: "${userSender}" posted in "${roomName}": "${msgContent}"`,
+      userRecipient
     );
   }
   console.log(alert);
 }
-
-// export async function messageCallback(user: User, room: Room, msg: Message) {
-//   let alert;
-//   if (msg.sender instanceof Bot) {
-//     alert = `To "${user.name}" ::: Announcement in room "${room.name}": ${msg.content}`;
-//   } else {
-//     alert = `To "${user.name}" ::: "${msg.sender.name}" posted in "${room.name}": "${msg.content}"`;
-//   }
-
-//   let userService = new UserService(user);
-//   userService.appendToStream(room, alert);
-//   await wait(1000 * (1 + Math.random()));
-//   userService.handleMessage(alert);
-// }
