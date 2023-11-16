@@ -1,6 +1,3 @@
-import { Room } from "./Room";
-import { User } from "./User";
-
 export class Message {
   public content: string;
   public senderID: string;

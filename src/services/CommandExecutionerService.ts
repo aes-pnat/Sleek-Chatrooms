@@ -55,7 +55,7 @@ class CommandExecutionerService {
               room.uuid,
               new Date()
             );
-            UserMessageQueueService.enqueue(msg.senderID, cmdResponse);
+            UserMessageQueueService.enqueue(sender.uuid, cmdResponse);
             break;
 
           default:

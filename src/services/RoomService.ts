@@ -13,8 +13,6 @@ class RoomService {
     if (!sender) throw Error(`Sender not found on message: ${msg}`);
     if (!room) throw Error(`Room not found on message: ${msg}`);
 
-    if (!(sender instanceof User)) throw Error();
-
     /* Room join alert */
     if (!room.users.includes(sender.uuid)) {
       room.users.push(sender.uuid);

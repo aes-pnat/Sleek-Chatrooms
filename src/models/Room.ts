@@ -1,5 +1,4 @@
 import { Message } from "./Message";
-import { User } from "./User";
 
 const crypto = require("crypto");
 export class Room {

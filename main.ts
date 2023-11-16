@@ -15,6 +15,7 @@ const queue = [
   `roger@numb Just nod if you can hear me`,
   `steve:trash@son Lay your weary head to rest`,
   `bobby:junk@happy Be happy`,
+  `@happy Be happy`,
   `steve@son Don't you cry no more`,
   `roger@numb Is there anyone home?`,
   `kerry@son BaDa-Da-Dum BaDa-Da-Da-Dum`,

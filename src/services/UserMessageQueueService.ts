@@ -1,5 +1,5 @@
 import "colors";
-import { User } from "../models/User";
+
 import { Message } from "../models/Message";
 import { colorByName } from "../../utils";
 import UsersDataStore from "../UsersDataStore";
@@ -24,6 +24,16 @@ class UserMessageQueueService {
     let userRecipient = UsersDataStore.getUserById(userRecipientID)!;
     let userSender = UsersDataStore.getUserById(msg.senderID)!;
     let room = RoomsDataStore.getRoomById(msg.roomID);
+
+    if (!room) {
+      throw Error(`   Room ${msg.roomID} not found!`);
+    }
+    if (!userRecipient) {
+      throw Error(`   User recipient ${userRecipientID} not found!`);
+    }
+    if (!userSender) {
+      throw Error(`   User sender ${msg.senderID} not found!`);
+    }
 
     console.log(
       colors.bold(`   Enqueueing message for `) +
