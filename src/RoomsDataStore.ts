@@ -1,10 +1,10 @@
 import { Room } from "./models/Room";
 
 class RoomDataStore {
-  public rooms: Room[] = [];
+  public rooms: Room[] = [new Room("general", true)];
 
-  public addRoom(name: string) {
-    this.rooms.push(new Room(name));
+  public addRoom(name: string, open: string) {
+    this.rooms.push(new Room(name, open === "public"));
   }
 
   public getRoomByName(name: string) {

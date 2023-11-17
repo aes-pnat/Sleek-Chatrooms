@@ -6,9 +6,11 @@ export class Room {
   public name: string;
   public messages: Message[] = [];
   public users: string[] = [];
+  public open: boolean = true;
 
-  constructor(name: string) {
+  constructor(name: string, open: boolean) {
     this.uuid = crypto.randomUUID();
     this.name = name;
+    this.open = open;
   }
 }

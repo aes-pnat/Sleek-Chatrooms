@@ -2,6 +2,7 @@ import { Message } from "../models/Message";
 import UserMessageQueueService from "./UserMessageQueueService";
 import RoomsDataStore from "../RoomsDataStore";
 import UsersDataStore from "../UsersDataStore";
+import SecurityDataStore from "../SecurityDataStore";
 
 class CommandExecutionerService {
   public executeCommand(msg: Message) {
@@ -9,6 +10,7 @@ class CommandExecutionerService {
     let args = msg.content.split(" ").slice(1);
     let room = RoomsDataStore.getRoomById(msg.roomID)!;
     let sender = UsersDataStore.getUserById(msg.senderID)!;
+    let isRegistered = SecurityDataStore.getUserById(sender.uuid);
     let server = UsersDataStore.getUserByName("SERVER")!;
 
     console.log(
@@ -17,11 +19,65 @@ class CommandExecutionerService {
     let cmdResponse: Message;
 
     switch (command) {
+      case "create":
+        switch (args[0]) {
+          case "room":
+            if (!args[1]) {
+              console.log(`Argument "name" required for command "create room"`);
+              break;
+            }
+            if (!isRegistered && !args[2]) {
+              console.log(
+                `Argument "public" required for command "create room" for unregistered users`
+              );
+              break;
+            }
+            RoomsDataStore.addRoom(args[1], args[2]);
+            cmdResponse = new Message(
+              `User ${sender.name} created room "${args[1]}"`,
+              server.uuid,
+              room.uuid,
+              new Date()
+            );
+
+            room.users.forEach((userRecipientID) => {
+              UserMessageQueueService.enqueue(userRecipientID, cmdResponse);
+            });
+
+            room.messages.push(cmdResponse);
+            break;
+          case "user":
+            if (!UsersDataStore.getUserByName(args[1])) {
+              UsersDataStore.addUser(args[1]);
+            }
+            let user = UsersDataStore.getUserByName(args[1])!;
+            SecurityDataStore.addUser(user.uuid, args[2]);
+
+            cmdResponse = new Message(
+              `User ${sender.name} created user "${args[1]}"`,
+              server.uuid,
+              room.uuid,
+              new Date()
+            );
+
+            room.users.forEach((userRecipientID) => {
+              UserMessageQueueService.enqueue(userRecipientID, cmdResponse);
+            });
+
+            room.messages.push(cmdResponse);
+            break;
+          default:
+            console.log(`Argument "${args[0]}" invalid for command "create"`);
+        }
+        break;
       case "list":
         switch (args[0]) {
           case "rooms":
             cmdResponse = new Message(
-              RoomsDataStore.rooms.map((room) => room.name).join(", "),
+              RoomsDataStore.rooms
+                .filter((room) => isRegistered || room.open)
+                .map((room) => room.name)
+                .join(", "),
               server.uuid,
               room.uuid,
               new Date()
@@ -32,6 +88,10 @@ class CommandExecutionerService {
           case "users":
             cmdResponse = new Message(
               room.users
+                .filter(
+                  (userID) =>
+                    isRegistered || !SecurityDataStore.getUserById(userID)
+                )
                 .map((userID) => UsersDataStore.getUserById(userID))
                 .join(", "),
               server.uuid,
