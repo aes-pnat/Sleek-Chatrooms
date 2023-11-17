@@ -62,6 +62,7 @@ class UserMessageQueueService {
   }
 
   public processQueue(room: string, user: string) {
+    this.printState();
     if (this.queue[room][user].cs) {
       return;
     } else {
@@ -73,6 +74,27 @@ class UserMessageQueueService {
         }
       });
     }
+    this.printState();
+  }
+
+  public getTotalMessages() {
+    let totalMsgs = 0;
+    Object.keys(this.queue).forEach((room) => {
+      Object.keys(this.queue[room]).forEach((user) => {
+        totalMsgs += this.queue[room][user].q.length;
+      });
+    });
+    return totalMsgs;
+  }
+
+  public printState(): Object {
+    let totalMessages = this.getTotalMessages();
+    let output = {
+      idle: totalMessages === 0,
+      totalMessages: totalMessages,
+    };
+    console.log(output);
+    return output;
   }
 }
 
