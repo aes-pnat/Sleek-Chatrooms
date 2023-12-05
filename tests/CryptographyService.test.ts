@@ -7,12 +7,10 @@ describe("CryptographyService test", () => {
     const cryptographyService = new CryptographyService();
     const data = "Hello, world!";
 
-    let expectedHash = crypto.createHash("sha256");
-    expectedHash.update(data);
-    const expectedHashString = expectedHash.digest("hex");
-
     const actualHash = cryptographyService.hashData(data);
 
-    expect(actualHash).toEqual(expectedHashString);
+    expect(actualHash).toEqual(
+      "315f5bdb76d078c43b8ac0064e4a0164612b1fce77c869345bfc94c75894edd3"
+    );
   });
 });

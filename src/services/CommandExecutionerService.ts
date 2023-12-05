@@ -1,5 +1,4 @@
 import { Message } from "../models/Message";
-import UserMessageQueueService from "./UserMessageQueueService";
 import RoomsDataStore from "../RoomsDataStore";
 import UsersDataStore from "../UsersDataStore";
 import SecurityDataStore from "../SecurityDataStore";
@@ -7,7 +6,7 @@ import SecurityDataStore from "../SecurityDataStore";
 type ReturnCommand = { msg: Message; targetUsers: string[]; storeMsg: boolean };
 export class CommandExecutionerService {
   public executeCommand(msg: Message): ReturnCommand | undefined {
-    let command = msg.content.split(" ")[0].slice(1);
+    let command = msg.content.split(" ")[0];
     let args = msg.content.split(" ").slice(1);
     let room = RoomsDataStore.getRoomById(msg.roomID)!;
     let sender = UsersDataStore.getUserById(msg.senderID)!;
@@ -22,7 +21,7 @@ export class CommandExecutionerService {
     let cmdReturn: ReturnCommand;
 
     switch (command) {
-      case "create":
+      case "/create":
         switch (args[0]) {
           case "room":
             if (!args[1]) {
@@ -38,7 +37,9 @@ export class CommandExecutionerService {
             RoomsDataStore.addRoom(args[1], args[2]);
 
             cmdResponse = new Message(
-              `User ${sender.name} created room "${args[1]}"`,
+              `User ${sender.name} created a ${args[2] && "public"} room "${
+                args[1]
+              }"`,
               server.uuid,
               room.uuid,
               new Date()
@@ -82,7 +83,7 @@ export class CommandExecutionerService {
             console.log(`Argument "${args[0]}" invalid for command "create"`);
         }
         break;
-      case "list":
+      case "/list":
         switch (args[0]) {
           case "rooms":
             cmdResponse = new Message(
@@ -110,7 +111,7 @@ export class CommandExecutionerService {
                   (userID) =>
                     isRegistered || !SecurityDataStore.getUserById(userID)
                 )
-                .map((userID) => UsersDataStore.getUserById(userID))
+                .map((userID) => UsersDataStore.getUserById(userID)?.name)
                 .join(", "),
               server.uuid,
               room.uuid,
@@ -130,7 +131,7 @@ export class CommandExecutionerService {
               room.messages
                 .map(
                   (message) =>
-                    ` ${UsersDataStore.getUserById(message.senderID)!.name}: ${
+                    `${UsersDataStore.getUserById(message.senderID)!.name}: ${
                       message.content
                     }`
                 )
@@ -153,7 +154,7 @@ export class CommandExecutionerService {
         }
         break;
 
-      case "rename":
+      case "/rename":
         switch (args[0]) {
           case "room":
             room.name = args[1];

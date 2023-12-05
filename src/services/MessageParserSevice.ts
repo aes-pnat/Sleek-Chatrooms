@@ -4,6 +4,9 @@ import { Message } from "../models/Message";
 import SecurityService from "./SecurityService";
 import SecurityDataStore from "../SecurityDataStore";
 
+const v4 = new RegExp(
+  /^[0-9(a-f|A-F)]{8}-[0-9(a-f|A-F)]{4}-4[0-9(a-f|A-F)]{3}-[89ab][0-9(a-f|A-F)]{3}-[0-9(a-f|A-F)]{12}$/i
+);
 export class MessageParserService {
   public parseMessage(msg: string) {
     // [USERNAME[:AUTH]]@ID /COMMAND [ARG [ARG [ARG [...]]]]
@@ -20,7 +23,7 @@ export class MessageParserService {
     let roomID;
 
     // determine whether uuid or username, check validity of uuid
-    if (userNameOrUUID.length >= 30) {
+    if (userNameOrUUID.match(v4)) {
       if (!UserDataStore.getUserById(userNameOrUUID)) {
         throw new Error("User not found");
       }
@@ -33,7 +36,7 @@ export class MessageParserService {
     }
 
     // determine whether uuid or roomname, check validity of both
-    if (roomNameOrUUID.length >= 30) {
+    if (roomNameOrUUID.match(v4)) {
       if (!RoomDataStore.getRoomById(roomNameOrUUID)) {
         throw new Error("Room not found");
       }
@@ -52,9 +55,9 @@ export class MessageParserService {
 
     // if user entered an username and exists within the store with passwords, check password validity
     if (
-      userNameOrUUID &&
-      SecurityDataStore.getUserById(userNameOrUUID) &&
-      !SecurityService.checkValidPassword(userNameOrUUID, auth)
+      userID &&
+      SecurityDataStore.getUserById(userID) &&
+      !SecurityService.checkValidPassword(userID, auth)
     ) {
       throw new Error("Invalid password");
     }
