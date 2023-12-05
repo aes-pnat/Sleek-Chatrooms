@@ -1,7 +1,7 @@
 import SecurityDataStore from "../SecurityDataStore";
 import CryptographyService from "./CryptographyService";
 
-class SecurityService {
+export class SecurityService {
   public registerUser(name: string, password: string) {
     SecurityDataStore.addUser(name, password);
   }

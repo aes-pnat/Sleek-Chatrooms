@@ -5,7 +5,7 @@ import UserDataStore from "../UsersDataStore";
 import CommandExecutionerService from "./CommandExecutionerService";
 import UserMessageQueueService from "./UserMessageQueueService";
 
-class RoomService {
+export class RoomService {
   public msgToRoom(msg: Message) {
     let sender = UserDataStore.getUserById(msg.senderID);
     let room = RoomsDataStore.getRoomById(msg.roomID);
@@ -32,7 +32,12 @@ class RoomService {
 
     if (msg.isCommand) {
       /* Command */
-      CommandExecutionerService.executeCommand(msg);
+      let command = CommandExecutionerService.executeCommand(msg);
+      if (!command) return;
+      command.targetUsers.forEach((userRecipientID) => {
+        UserMessageQueueService.enqueue(userRecipientID, command!.msg);
+      });
+      if (command?.storeMsg) room.messages.push(msg);
     } else {
       /* Message itself */
       room.users.forEach((userRecipient) => {

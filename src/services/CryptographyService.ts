@@ -1,10 +1,11 @@
 const crypto = require("crypto");
 
-class CryptographyService {
+export class CryptographyService {
   public hashData(data: string): string {
     let hash = crypto.createHash("sha256");
     hash.update(data);
-    return hash.digest("hex");
+    const returnHash = hash.digest("hex");
+    return returnHash;
   }
 }
 

@@ -4,8 +4,9 @@ import RoomsDataStore from "../RoomsDataStore";
 import UsersDataStore from "../UsersDataStore";
 import SecurityDataStore from "../SecurityDataStore";
 
-class CommandExecutionerService {
-  public executeCommand(msg: Message) {
+type ReturnCommand = { msg: Message; targetUsers: string[]; storeMsg: boolean };
+export class CommandExecutionerService {
+  public executeCommand(msg: Message): ReturnCommand | undefined {
     let command = msg.content.split(" ")[0].slice(1);
     let args = msg.content.split(" ").slice(1);
     let room = RoomsDataStore.getRoomById(msg.roomID)!;
@@ -16,7 +17,9 @@ class CommandExecutionerService {
     console.log(
       `{${sender.name}} Executing command: "${command}" with args: "${args}"`
     );
+
     let cmdResponse: Message;
+    let cmdReturn: ReturnCommand;
 
     switch (command) {
       case "create":
@@ -33,24 +36,31 @@ class CommandExecutionerService {
               break;
             }
             RoomsDataStore.addRoom(args[1], args[2]);
+
             cmdResponse = new Message(
               `User ${sender.name} created room "${args[1]}"`,
               server.uuid,
               room.uuid,
               new Date()
             );
+            cmdReturn = {
+              msg: cmdResponse,
+              targetUsers: room.users,
+              storeMsg: true,
+            };
 
-            room.users.forEach((userRecipientID) => {
-              UserMessageQueueService.enqueue(userRecipientID, cmdResponse);
-            });
+            return cmdReturn;
 
-            room.messages.push(cmdResponse);
-            break;
           case "user":
             if (!UsersDataStore.getUserByName(args[1])) {
               UsersDataStore.addUser(args[1]);
             }
             let user = UsersDataStore.getUserByName(args[1])!;
+
+            if (SecurityDataStore.getUserById(user.uuid)) {
+              console.log(`User "${args[1]}" already registered`);
+              break;
+            }
             SecurityDataStore.addUser(user.uuid, args[2]);
 
             cmdResponse = new Message(
@@ -60,12 +70,14 @@ class CommandExecutionerService {
               new Date()
             );
 
-            room.users.forEach((userRecipientID) => {
-              UserMessageQueueService.enqueue(userRecipientID, cmdResponse);
-            });
+            cmdReturn = {
+              msg: cmdResponse,
+              targetUsers: room.users,
+              storeMsg: true,
+            };
 
-            room.messages.push(cmdResponse);
-            break;
+            return cmdReturn;
+
           default:
             console.log(`Argument "${args[0]}" invalid for command "create"`);
         }
@@ -82,8 +94,14 @@ class CommandExecutionerService {
               room.uuid,
               new Date()
             );
-            UserMessageQueueService.enqueue(sender.uuid, cmdResponse);
-            break;
+
+            cmdReturn = {
+              msg: cmdResponse,
+              targetUsers: [sender.uuid],
+              storeMsg: false,
+            };
+
+            return cmdReturn;
 
           case "users":
             cmdResponse = new Message(
@@ -98,8 +116,14 @@ class CommandExecutionerService {
               room.uuid,
               new Date()
             );
-            UserMessageQueueService.enqueue(sender.uuid, cmdResponse);
-            break;
+
+            cmdReturn = {
+              msg: cmdResponse,
+              targetUsers: [sender.uuid],
+              storeMsg: false,
+            };
+
+            return cmdReturn;
 
           case "messages":
             cmdResponse = new Message(
@@ -115,8 +139,14 @@ class CommandExecutionerService {
               room.uuid,
               new Date()
             );
-            UserMessageQueueService.enqueue(sender.uuid, cmdResponse);
-            break;
+
+            cmdReturn = {
+              msg: cmdResponse,
+              targetUsers: [sender.uuid],
+              storeMsg: false,
+            };
+
+            return cmdReturn;
 
           default:
             console.log(`Argument "${args[0]}" invalid for command "list"`);
@@ -134,12 +164,13 @@ class CommandExecutionerService {
               new Date()
             );
 
-            room.users.forEach((userRecipientID) => {
-              UserMessageQueueService.enqueue(userRecipientID, cmdResponse);
-            });
+            cmdReturn = {
+              msg: cmdResponse,
+              targetUsers: room.users,
+              storeMsg: true,
+            };
 
-            room.messages.push(cmdResponse);
-            break;
+            return cmdReturn;
 
           case "self":
             sender.name = args[1];
@@ -150,12 +181,13 @@ class CommandExecutionerService {
               new Date()
             );
 
-            room.users.forEach((userRecipientID) => {
-              UserMessageQueueService.enqueue(userRecipientID, cmdResponse);
-            });
+            cmdReturn = {
+              msg: cmdResponse,
+              targetUsers: room.users,
+              storeMsg: true,
+            };
 
-            room.messages.push(cmdResponse);
-            break;
+            return cmdReturn;
 
           default:
             console.log(`Argument "${args[0]}" invalid for command "rename"`);

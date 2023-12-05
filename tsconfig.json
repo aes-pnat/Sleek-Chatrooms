@@ -3,7 +3,7 @@
     "compilerOptions": {
         "outDir": "dist"
       },
-    "include": ["src", "main.ts", "utils.ts"],
+    "include": ["src", "main.ts", "utils.ts", "tests"],
     "exclude": ["node_modules"]
   }
   

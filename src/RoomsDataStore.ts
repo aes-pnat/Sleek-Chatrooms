@@ -22,6 +22,10 @@ class RoomDataStore {
     }
     return room.users;
   }
+
+  public clearRooms() {
+    this.rooms = [];
+  }
 }
 
 export default new RoomDataStore();

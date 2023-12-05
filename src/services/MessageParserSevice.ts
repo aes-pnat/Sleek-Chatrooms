@@ -4,7 +4,7 @@ import { Message } from "../models/Message";
 import SecurityService from "./SecurityService";
 import SecurityDataStore from "../SecurityDataStore";
 
-class MessageParserService {
+export class MessageParserService {
   public parseMessage(msg: string) {
     // [USERNAME[:AUTH]]@ID /COMMAND [ARG [ARG [ARG [...]]]]
     // username, id, arg not /[A-Za-z0-9_\-]/

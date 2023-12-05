@@ -16,6 +16,10 @@ class SecurityDataStore {
     let passHash = CryptographyService.hashData(password);
     this.securityUsers.push({ uuid: id, passwordHash: passHash });
   }
+
+  public clearUsers() {
+    this.securityUsers = [];
+  }
 }
 
 export default new SecurityDataStore();

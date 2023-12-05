@@ -4,7 +4,6 @@ import { Message } from "../models/Message";
 import { colorByName } from "../../utils";
 import UsersDataStore from "../UsersDataStore";
 import RoomsDataStore from "../RoomsDataStore";
-import { Bot } from "../models/Bot";
 
 var colors = require("colors/safe");
 
@@ -16,7 +15,7 @@ type QueueCollection = {
     };
   };
 };
-class UserMessageQueueService {
+export class UserMessageQueueService {
   public queue: QueueCollection = {};
   public callback: Function = console.log;
 
@@ -49,7 +48,7 @@ class UserMessageQueueService {
     }
     this.queue[room!.uuid][userRecipient.uuid].q.push(() =>
       this.callback(
-        userSender instanceof Bot,
+        userSender.isBot,
         room!.name,
         userRecipient.name,
         userSender.name,

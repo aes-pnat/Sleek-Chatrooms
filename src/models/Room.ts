@@ -9,8 +9,8 @@ export class Room {
   public open: boolean = true;
 
   constructor(name: string, open: boolean) {
-    this.uuid = crypto.randomUUID();
     this.name = name;
     this.open = open;
+    this.uuid = crypto.randomUUID();
   }
 }

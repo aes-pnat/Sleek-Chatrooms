@@ -1,8 +1,7 @@
-import { Bot } from "./models/Bot";
 import { User } from "./models/User";
 
 class UserDataStore {
-  public users: User[] = [new Bot("SERVER")];
+  public users: User[] = [new User("SERVER", true)];
 
   public getUserByName(name: string) {
     return this.users.find((user) => user.name === name);
@@ -20,6 +19,10 @@ class UserDataStore {
       throw new Error(`User with name "${name}" already exists`);
     }
     this.users.push(new User(name));
+  }
+
+  public clearUsers() {
+    this.users = [];
   }
 }
 

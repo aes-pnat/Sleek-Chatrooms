@@ -1,0 +1,26 @@
+{
+  "name": "intellegensonboarding",
+  "version": "1.0.0",
+  "description": "A simple chat server and messaging service.",
+  "main": "./main.ts",
+  "scripts": {
+    "start": "ts-node ./main.ts",
+    "test": "jest --watchAll --verbose"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aes-pnat/IntellegensOnboarding.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aes-pnat/IntellegensOnboarding/issues"
+  },
+  "homepage": "https://github.com/aes-pnat/IntellegensOnboarding#readme",
+  "devDependencies": {
+    "@types/jest": "^29.5.8",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.2.2"
+  }
+}
