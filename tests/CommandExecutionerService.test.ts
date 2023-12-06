@@ -136,7 +136,9 @@ describe("CommandExecutionerService test", () => {
 
     expect(response?.targetUsers.length).toBe(1);
     expect(response?.storeMsg).toBeFalsy();
-    expect(response?.msg.content).toBe(`general`);
+    expect(response?.msg.content).toBe(
+      `[general : ${RoomsDataStore.getRoomByName("general")!.uuid}]`
+    );
   });
 
   it("[LIST] room listing for registered users", () => {
@@ -160,7 +162,11 @@ describe("CommandExecutionerService test", () => {
 
     expect(response?.targetUsers.length).toBe(1);
     expect(response?.storeMsg).toBeFalsy();
-    expect(response?.msg.content).toBe(`general, testRoom`);
+    expect(response?.msg.content).toBe(
+      `[general : ${
+        RoomsDataStore.getRoomByName("general")!.uuid
+      }], [testRoom : ${RoomsDataStore.getRoomByName("testRoom")!.uuid}]`
+    );
   });
 
   it("[LIST] user listing for unregistered users", () => {

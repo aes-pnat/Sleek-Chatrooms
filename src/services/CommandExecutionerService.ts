@@ -90,7 +90,7 @@ class CommandExecutionerService {
             cmdResponse = new Message(
               RoomsDataStore.rooms
                 .filter((room) => isRegistered || room.open)
-                .map((room) => room.name)
+                .map((room) => `[${room.name} : ${room.uuid}]`)
                 .join(", "),
               server.uuid,
               room.uuid,
