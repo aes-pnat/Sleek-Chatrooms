@@ -7,6 +7,27 @@ import RoomsDataStore from "../RoomsDataStore";
 
 var colors = require("colors/safe");
 
+const defaultCallback = (
+  isBot: boolean,
+  roomName: string,
+  userRecipientName: string,
+  userSenderName: string,
+  content: string,
+  timestamp: string
+) => {
+  return new Promise((resolve) => {
+    console.log(
+      isBot,
+      roomName,
+      userRecipientName,
+      userSenderName,
+      content,
+      timestamp
+    );
+    resolve(void 0);
+  });
+};
+
 type QueueCollection = {
   [key: string]: {
     [key: string]: {
@@ -15,9 +36,9 @@ type QueueCollection = {
     };
   };
 };
-export class UserMessageQueueService {
+class UserMessageQueueService {
   public queue: QueueCollection = {};
-  public callback: Function = console.log;
+  public callback: Function = defaultCallback;
 
   public async enqueue(userRecipientID: string, msg: Message) {
     let userRecipient = UsersDataStore.getUserById(userRecipientID)!;

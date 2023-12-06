@@ -1,5 +1,4 @@
 import { Message } from "../models/Message";
-import { User } from "../models/User";
 import RoomsDataStore from "../RoomsDataStore";
 import UserDataStore from "../UsersDataStore";
 import CommandExecutionerService from "./CommandExecutionerService";

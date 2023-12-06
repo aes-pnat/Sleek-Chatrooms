@@ -5,13 +5,14 @@ import RoomsDataStore from "../src/RoomsDataStore";
 import CommandExecutionerService from "../src/services/CommandExecutionerService";
 import { User } from "../src/models/User";
 import { Room } from "../src/models/Room";
+import SecurityService from "../src/services/SecurityService";
 
 describe("CommandExecutionerService test", () => {
   beforeEach(() => {
     UsersDataStore.addUser("unregisteredUser");
     UsersDataStore.addUser("registeredUser");
     const user = UsersDataStore.getUserByName("registeredUser")!.uuid;
-    SecurityDataStore.addUser(user, "registeredUserPassword");
+    SecurityService.registerUser(user, "registeredUserPassword");
     RoomsDataStore.getRoomByName("general")!.users.push(
       UsersDataStore.getUserByName("registeredUser")!.uuid
     );

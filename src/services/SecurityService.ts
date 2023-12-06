@@ -2,8 +2,9 @@ import SecurityDataStore from "../SecurityDataStore";
 import CryptographyService from "./CryptographyService";
 
 export class SecurityService {
-  public registerUser(name: string, password: string) {
-    SecurityDataStore.addUser(name, password);
+  public registerUser(id: string, password: string) {
+    let passHash = CryptographyService.hashData(password);
+    SecurityDataStore.addUser(id, passHash);
   }
 
   public checkValidPassword(id: string, password: string) {

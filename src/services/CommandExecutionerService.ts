@@ -2,9 +2,10 @@ import { Message } from "../models/Message";
 import RoomsDataStore from "../RoomsDataStore";
 import UsersDataStore from "../UsersDataStore";
 import SecurityDataStore from "../SecurityDataStore";
+import SecurityService from "./SecurityService";
 
 type ReturnCommand = { msg: Message; targetUsers: string[]; storeMsg: boolean };
-export class CommandExecutionerService {
+class CommandExecutionerService {
   public executeCommand(msg: Message): ReturnCommand | undefined {
     let command = msg.content.split(" ")[0];
     let args = msg.content.split(" ").slice(1);
@@ -62,7 +63,7 @@ export class CommandExecutionerService {
               console.log(`User "${args[1]}" already registered`);
               break;
             }
-            SecurityDataStore.addUser(user.uuid, args[2]);
+            SecurityService.registerUser(user.uuid, args[2]);
 
             cmdResponse = new Message(
               `User ${sender.name} created user "${args[1]}"`,

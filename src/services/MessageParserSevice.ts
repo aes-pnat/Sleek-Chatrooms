@@ -59,6 +59,11 @@ export class MessageParserService {
       SecurityDataStore.getUserById(userID) &&
       !SecurityService.checkValidPassword(userID, auth)
     ) {
+      console.debug(
+        userID,
+        SecurityDataStore.getUserById(userID),
+        !SecurityService.checkValidPassword(userID, auth)
+      );
       throw new Error("Invalid password");
     }
 

@@ -4,13 +4,14 @@ import UsersDataStore from "../src/UsersDataStore";
 import { Room } from "../src/models/Room";
 import { User } from "../src/models/User";
 import MessageParserService from "../src/services/MessageParserSevice";
+import SecurityService from "../src/services/SecurityService";
 
 describe("MessageParserService test", () => {
   beforeEach(() => {
     UsersDataStore.addUser("unregisteredUser");
     UsersDataStore.addUser("registeredUser");
     const user = UsersDataStore.getUserByName("registeredUser")!.uuid;
-    SecurityDataStore.addUser(user, "registeredUserPassword");
+    SecurityService.registerUser(user, "registeredUserPassword");
     RoomsDataStore.getRoomByName("general")!.users.push(
       UsersDataStore.getUserByName("registeredUser")!.uuid
     );

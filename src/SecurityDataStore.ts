@@ -1,5 +1,3 @@
-import CryptographyService from "./services/CryptographyService";
-
 type SecurityCollection = {
   uuid: string;
   passwordHash: string;
@@ -12,9 +10,8 @@ class SecurityDataStore {
     return this.securityUsers.find((user) => user.uuid === uuid);
   }
 
-  public addUser(id: string, password: string) {
-    let passHash = CryptographyService.hashData(password);
-    this.securityUsers.push({ uuid: id, passwordHash: passHash });
+  public addUser(id: string, passwordHash: string) {
+    this.securityUsers.push({ uuid: id, passwordHash: passwordHash });
   }
 
   public clearUsers() {
