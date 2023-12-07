@@ -34,6 +34,32 @@ describe("CommandExecutionerService test", () => {
   });
 
   /////////////////////////////////////////////////////////////////////
+  it("Invalid command", () => {
+    const msg = new Message(
+      "/invalidCommand",
+      UsersDataStore.getUserByName("registeredUser")!.uuid,
+      RoomsDataStore.getRoomByName("general")!.uuid,
+      new Date()
+    );
+    const response = CommandExecutionerService.executeCommand(msg);
+
+    expect(response!.msg.content).toBe(`Command "/invalidCommand" invalid`);
+  });
+
+  it("[CREATE] invalid argument for command", () => {
+    const msg = new Message(
+      "/create invalidArgument",
+      UsersDataStore.getUserByName("registeredUser")!.uuid,
+      RoomsDataStore.getRoomByName("general")!.uuid,
+      new Date()
+    );
+
+    const response = CommandExecutionerService.executeCommand(msg);
+
+    expect(response!.msg.content).toBe(
+      `Argument "invalidArgument" invalid for command "create"`
+    );
+  });
 
   it("[CREATE] valid closed room creation by registered user", () => {
     const msg = new Message(
@@ -88,8 +114,6 @@ describe("CommandExecutionerService test", () => {
     );
 
     const response = CommandExecutionerService.executeCommand(msg);
-    console.log(UsersDataStore.users);
-    console.log(SecurityDataStore.securityUsers);
 
     const user = UsersDataStore.getUserByName("newUser");
     expect(user).not.toBeUndefined();
@@ -113,6 +137,21 @@ describe("CommandExecutionerService test", () => {
     expect(SecurityDataStore.getUserById(user!.uuid)).not.toBeUndefined();
     expect(response?.targetUsers.length).toBeGreaterThan(1);
     expect(response?.storeMsg).toBeTruthy();
+  });
+
+  it("[LIST] invalid argument for command", () => {
+    const msg = new Message(
+      "/list invalidArgument",
+      UsersDataStore.getUserByName("registeredUser")!.uuid,
+      RoomsDataStore.getRoomByName("general")!.uuid,
+      new Date()
+    );
+
+    const response = CommandExecutionerService.executeCommand(msg);
+
+    expect(response!.msg.content).toBe(
+      `Argument "invalidArgument" invalid for command "list"`
+    );
   });
 
   it("[LIST] room listing for unregistered users", () => {
@@ -181,7 +220,11 @@ describe("CommandExecutionerService test", () => {
 
     expect(response?.targetUsers.length).toBe(1);
     expect(response?.storeMsg).toBeFalsy();
-    expect(response?.msg.content).toBe(`unregisteredUser`);
+    expect(response?.msg.content).toBe(
+      `[unregisteredUser : ${
+        UsersDataStore.getUserByName("unregisteredUser")!.uuid
+      }]`
+    );
   });
 
   it("[LIST] user listing for registered users", () => {
@@ -196,7 +239,13 @@ describe("CommandExecutionerService test", () => {
 
     expect(response?.targetUsers.length).toBe(1);
     expect(response?.storeMsg).toBeFalsy();
-    expect(response?.msg.content).toBe(`registeredUser, unregisteredUser`);
+    expect(response?.msg.content).toBe(
+      `[registeredUser : ${
+        UsersDataStore.getUserByName("registeredUser")!.uuid
+      }], [unregisteredUser : ${
+        UsersDataStore.getUserByName("unregisteredUser")!.uuid
+      }]`
+    );
   });
 
   it("[LIST] message listing for any users", () => {
@@ -220,6 +269,21 @@ describe("CommandExecutionerService test", () => {
     expect(response?.targetUsers.length).toBe(1);
     expect(response?.storeMsg).toBeFalsy();
     expect(response?.msg.content).toBe(`registeredUser: /create room room1`);
+  });
+
+  it("[RENAME] invalid argument for command", () => {
+    const msg = new Message(
+      "/rename invalidArgument",
+      UsersDataStore.getUserByName("registeredUser")!.uuid,
+      RoomsDataStore.getRoomByName("general")!.uuid,
+      new Date()
+    );
+
+    const response = CommandExecutionerService.executeCommand(msg);
+
+    expect(response!.msg.content).toBe(
+      `Argument "invalidArgument" invalid for command "rename"`
+    );
   });
 
   it("[RENAME] room renaming by registered user", () => {

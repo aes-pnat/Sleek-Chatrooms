@@ -20,7 +20,7 @@ export class RoomService {
         `"${sender.name}" joined the room`,
         UserDataStore.getUserByName("SERVER")!.uuid,
         room.uuid,
-        new Date()
+        msg.datetime
       );
 
       room.users.forEach((userRecipientID) => {

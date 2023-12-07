@@ -15,14 +15,6 @@ class RoomDataStore {
     return this.rooms.find((room) => room.uuid === uuid);
   }
 
-  public getUsersFromRoom(roomName: string) {
-    let room = this.getRoomByName(roomName);
-    if (!room) {
-      return [];
-    }
-    return room.users;
-  }
-
   public clearRooms() {
     this.rooms = [];
   }

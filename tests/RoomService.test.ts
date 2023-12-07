@@ -37,11 +37,40 @@ describe("RoomService test", () => {
     jest.clearAllMocks();
   });
 
+  it("enqueues server message to the room upon join", () => {
+    const queueSpy = jest.spyOn(UserMessageQueueService, "enqueue");
+
+    const msg = new Message(
+      "Hello, world 1!",
+      UsersDataStore.getUserByName("unregisteredUser")!.uuid,
+      RoomsDataStore.getRoomByName("room1")!.uuid,
+      new Date()
+    );
+    RoomService.msgToRoom(msg);
+
+    const serverMsg = new Message(
+      `"${
+        UsersDataStore.getUserByName("unregisteredUser")!.name
+      }" joined the room`,
+      UsersDataStore.getUserByName("SERVER")!.uuid,
+      RoomsDataStore.getRoomByName("room1")!.uuid,
+      msg.datetime
+    );
+    expect(queueSpy).toHaveBeenCalledWith(
+      UsersDataStore.getUserByName("unregisteredUser")!.uuid,
+      serverMsg
+    );
+    expect(queueSpy).toHaveBeenCalledWith(
+      UsersDataStore.getUserByName("unregisteredUser")!.uuid,
+      msg
+    );
+  });
+
   it("properly enqueues message to the room", () => {
     const queueSpy = jest.spyOn(UserMessageQueueService, "enqueue");
 
     const msg1 = new Message(
-      "Hello, world!",
+      "Hello, world 1!",
       UsersDataStore.getUserByName("unregisteredUser")!.uuid,
       RoomsDataStore.getRoomByName("room1")!.uuid,
       new Date()
@@ -49,31 +78,30 @@ describe("RoomService test", () => {
     RoomService.msgToRoom(msg1);
 
     const msg2 = new Message(
-      "Hello, world!",
-      UsersDataStore.getUserByName("registeredUser")!.uuid,
+      "Hello, world 2!",
+      UsersDataStore.getUserByName("unregisteredUser")!.uuid,
       RoomsDataStore.getRoomByName("room1")!.uuid,
       new Date()
     );
     RoomService.msgToRoom(msg2);
 
+    const msg3 = new Message(
+      "Hello, world 3!",
+      UsersDataStore.getUserByName("registeredUser")!.uuid,
+      RoomsDataStore.getRoomByName("room1")!.uuid,
+      new Date()
+    );
+    RoomService.msgToRoom(msg3);
+
     /* 
-    server message + 1 message for unregistered user
-    server message + 2 messages for registered and unregistered user
-    
+    1x server message + 1x message for unregistered user
+    1x message for unregistered user
+    2x server message + 2x message users in the room
     */
-    expect(queueSpy).toHaveBeenCalledTimes(2 + 4);
+    expect(queueSpy).toHaveBeenCalledTimes(2 + 1 + 4);
   });
 
   it("add new user to the room", () => {
-    // const enqueueMock = jest.mock(
-    //   "../src/services/UserMessageQueueService",
-    //   () => {
-    //     return {
-    //       enqueue: jest.fn(),
-    //     };
-    //   }
-    // );
-
     const msg = new Message(
       "Hello, world!",
       UsersDataStore.getUserByName("unregisteredUser")!.uuid,
@@ -90,7 +118,6 @@ describe("RoomService test", () => {
     expect(RoomsDataStore.getRoomByName("room1")!.users).toContain(
       UsersDataStore.getUserByName("unregisteredUser")!.uuid
     );
-    // expect(enqueueMock).toHaveBeenCalled();
   });
 
   it("stores message in the room", () => {

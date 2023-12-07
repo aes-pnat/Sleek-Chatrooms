@@ -81,7 +81,19 @@ class CommandExecutionerService {
             return cmdReturn;
 
           default:
-            console.log(`Argument "${args[0]}" invalid for command "create"`);
+            cmdResponse = new Message(
+              `Argument "${args[0]}" invalid for command "create"`,
+              server.uuid,
+              room.uuid,
+              new Date()
+            );
+
+            cmdReturn = {
+              msg: cmdResponse,
+              targetUsers: [sender.uuid],
+              storeMsg: false,
+            };
+            return cmdReturn;
         }
         break;
       case "/list":
@@ -112,7 +124,10 @@ class CommandExecutionerService {
                   (userID) =>
                     isRegistered || !SecurityDataStore.getUserById(userID)
                 )
-                .map((userID) => UsersDataStore.getUserById(userID)?.name)
+                .map(
+                  (userID) =>
+                    `[${UsersDataStore.getUserById(userID)?.name} : ${userID}]`
+                )
                 .join(", "),
               server.uuid,
               room.uuid,
@@ -151,7 +166,19 @@ class CommandExecutionerService {
             return cmdReturn;
 
           default:
-            console.log(`Argument "${args[0]}" invalid for command "list"`);
+            cmdResponse = new Message(
+              `Argument "${args[0]}" invalid for command "list"`,
+              server.uuid,
+              room.uuid,
+              new Date()
+            );
+
+            cmdReturn = {
+              msg: cmdResponse,
+              targetUsers: [sender.uuid],
+              storeMsg: false,
+            };
+            return cmdReturn;
         }
         break;
 
@@ -192,12 +219,36 @@ class CommandExecutionerService {
             return cmdReturn;
 
           default:
-            console.log(`Argument "${args[0]}" invalid for command "rename"`);
+            cmdResponse = new Message(
+              `Argument "${args[0]}" invalid for command "rename"`,
+              server.uuid,
+              room.uuid,
+              new Date()
+            );
+
+            cmdReturn = {
+              msg: cmdResponse,
+              targetUsers: [sender.uuid],
+              storeMsg: false,
+            };
+            return cmdReturn;
         }
         break;
 
       default:
-        console.log(`Command "${command}" invalid`);
+        cmdResponse = new Message(
+          `Command "${command}" invalid`,
+          server.uuid,
+          room.uuid,
+          new Date()
+        );
+
+        cmdReturn = {
+          msg: cmdResponse,
+          targetUsers: [sender.uuid],
+          storeMsg: false,
+        };
+        return cmdReturn;
     }
   }
 }
