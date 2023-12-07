@@ -26,7 +26,7 @@ describe("UserMessageQueueService test", () => {
 
   afterEach(() => {
     UsersDataStore.clearUsers();
-    UsersDataStore.users = [new User("SERVER", true)];
+    UsersDataStore.fillUsers();
 
     SecurityDataStore.clearUsers();
 

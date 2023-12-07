@@ -23,7 +23,7 @@ describe("CommandExecutionerService test", () => {
 
   afterEach(() => {
     UsersDataStore.clearUsers();
-    UsersDataStore.users = [new User("SERVER", true)];
+    UsersDataStore.fillUsers();
 
     SecurityDataStore.clearUsers();
 
@@ -87,7 +87,9 @@ describe("CommandExecutionerService test", () => {
     const response = CommandExecutionerService.executeCommand(msg);
 
     expect(RoomsDataStore.getRoomByName("testRoom")).toBeUndefined();
-    expect(response).toBeUndefined();
+    expect(response!.msg.content).toBe(
+      `Argument "public" required for command "create room" for unregistered users`
+    );
   });
 
   it("[CREATE] valid open room creation by unregistered user", () => {

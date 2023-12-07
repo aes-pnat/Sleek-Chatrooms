@@ -74,6 +74,36 @@ class CommandExecutionerService {
             return cmdReturn;
 
           case "user":
+            if (!args[1]) {
+              cmdResponse = new Message(
+                `Argument "name" required for command "create user"`,
+                server.uuid,
+                room.uuid,
+                new Date()
+              );
+
+              cmdReturn = {
+                msg: cmdResponse,
+                targetUsers: [sender.uuid],
+                storeMsg: false,
+              };
+              return cmdReturn;
+            } else if (args[1] === "SERVER" || args[1] === "ANONYMOUS") {
+              cmdResponse = new Message(
+                `User name "${args[1]}" is reserved`,
+                server.uuid,
+                room.uuid,
+                new Date()
+              );
+
+              cmdReturn = {
+                msg: cmdResponse,
+                targetUsers: [sender.uuid],
+                storeMsg: false,
+              };
+              return cmdReturn;
+            }
+
             if (!UsersDataStore.getUserByName(args[1])) {
               UsersDataStore.addUser(args[1]);
             }
@@ -216,6 +246,35 @@ class CommandExecutionerService {
       case "/rename":
         switch (args[0]) {
           case "room":
+            if (!args[1]) {
+              cmdResponse = new Message(
+                `Argument "roomName" required for command "rename room"`,
+                server.uuid,
+                room.uuid,
+                new Date()
+              );
+
+              cmdReturn = {
+                msg: cmdResponse,
+                targetUsers: [sender.uuid],
+                storeMsg: false,
+              };
+              return cmdReturn;
+            } else if (RoomsDataStore.getRoomByName(args[1])) {
+              cmdResponse = new Message(
+                `Room with name "${args[2]}" already exists`,
+                server.uuid,
+                room.uuid,
+                new Date()
+              );
+
+              cmdReturn = {
+                msg: cmdResponse,
+                targetUsers: [sender.uuid],
+                storeMsg: false,
+              };
+              return cmdReturn;
+            }
             room.name = args[1];
             cmdResponse = new Message(
               `User ${sender.name} renamed room to "${args[1]}"`,

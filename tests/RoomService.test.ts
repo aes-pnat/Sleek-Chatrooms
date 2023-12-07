@@ -27,7 +27,7 @@ describe("RoomService test", () => {
 
   afterEach(() => {
     UsersDataStore.clearUsers();
-    UsersDataStore.users = [new User("SERVER", true)];
+    UsersDataStore.fillUsers();
 
     SecurityDataStore.clearUsers();
 
@@ -84,6 +84,7 @@ describe("RoomService test", () => {
       new Date()
     );
     RoomService.msgToRoom(msg2);
+    console.warn(RoomsDataStore.getRoomByName("room1")!.users);
 
     const msg3 = new Message(
       "Hello, world 3!",
@@ -92,13 +93,14 @@ describe("RoomService test", () => {
       new Date()
     );
     RoomService.msgToRoom(msg3);
+    console.warn(RoomsDataStore.getRoomByName("room1")!.users);
 
     /* 
-    1x server message + 1x message for unregistered user
-    1x message for unregistered user
-    2x server message + 2x message users in the room
+    2x server message + 1x message for unregistered user + 1x for anonymous user
+    1x message for unregistered user  + 1x for anonymous user
+    3x server message + 2x message users in the room  + 1x for anonymous user
     */
-    expect(queueSpy).toHaveBeenCalledTimes(2 + 1 + 4);
+    expect(queueSpy).toHaveBeenCalledTimes(4 + 2 + 6);
   });
 
   it("add new user to the room", () => {

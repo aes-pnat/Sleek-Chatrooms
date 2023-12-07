@@ -1,10 +1,11 @@
 import { User } from "./models/User";
 
 class UserDataStore {
-  public users: User[] = [
-    new User("SERVER", true),
-    new User("ANONYMOUS", false),
-  ];
+  public users: User[] = [];
+
+  constructor() {
+    this.fillUsers();
+  }
 
   public getUserByName(name: string) {
     return this.users.find((user) => user.name === name);
@@ -26,6 +27,10 @@ class UserDataStore {
 
   public clearUsers() {
     this.users = [];
+  }
+
+  public fillUsers() {
+    this.users = [new User("SERVER", true), new User("ANONYMOUS", false)];
   }
 }
 
