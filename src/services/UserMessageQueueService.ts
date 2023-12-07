@@ -39,8 +39,19 @@ type QueueCollection = {
 class UserMessageQueueService {
   public queue: QueueCollection = {};
   public callback: Function = defaultCallback;
+  private serverDebug: boolean = false;
+
+  public setServerDebug() {
+    this.serverDebug = true;
+  }
 
   public async enqueue(userRecipientID: string, msg: Message) {
+    if (
+      this.serverDebug &&
+      userRecipientID !== UsersDataStore.getUserByName("SERVER")!.uuid
+    ) {
+      return;
+    }
     let userRecipient = UsersDataStore.getUserById(userRecipientID)!;
     let userSender = UsersDataStore.getUserById(msg.senderID)!;
     let room = RoomsDataStore.getRoomById(msg.roomID);

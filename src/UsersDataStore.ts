@@ -1,7 +1,10 @@
 import { User } from "./models/User";
 
 class UserDataStore {
-  public users: User[] = [new User("SERVER", true)];
+  public users: User[] = [
+    new User("SERVER", true),
+    new User("ANONYMOUS", false),
+  ];
 
   public getUserByName(name: string) {
     return this.users.find((user) => user.name === name);

@@ -9,7 +9,8 @@ export class RoomService {
     let sender = UserDataStore.getUserById(msg.senderID);
     let room = RoomsDataStore.getRoomById(msg.roomID);
 
-    if (!sender) throw Error(`Sender not found on message: ${msg}`);
+    if (sender === undefined)
+      throw Error(`Sender not found on message: ${msg}`);
     if (!room) throw Error(`Room not found on message: ${msg}`);
 
     /* Room join alert */

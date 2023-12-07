@@ -22,17 +22,17 @@ export class MessageParserService {
     let userID;
     let roomID;
 
-    // determine whether uuid or username, check validity of uuid
-    if (userNameOrUUID.match(v4)) {
-      if (!UserDataStore.getUserById(userNameOrUUID)) {
-        throw new Error("User not found");
-      }
-      userID = userNameOrUUID;
-    } else {
-      if (!UserDataStore.getUserByName(userNameOrUUID)) {
-        UserDataStore.addUser(userNameOrUUID);
-      }
-      userID = UserDataStore.getUserByName(userNameOrUUID)!.uuid;
+    if (
+      userNameOrUUID.toLowerCase() === "server" ||
+      userNameOrUUID.toLowerCase() ===
+        UserDataStore.getUserByName("SERVER")!.uuid
+    ) {
+      return new Message(
+        "! User attempted to mimic SERVER, this incident will be reported !",
+        UserDataStore.getUserByName("ANONYMOUS")!.uuid,
+        RoomDataStore.getRoomByName("general")!.uuid,
+        new Date()
+      );
     }
 
     // determine whether uuid or roomname, check validity of both
@@ -46,6 +46,21 @@ export class MessageParserService {
         throw new Error("Room not found");
       }
       roomID = RoomDataStore.getRoomByName(roomNameOrUUID)!.uuid;
+    }
+
+    // determine whether uuid or username, check validity of uuid
+    if (userNameOrUUID === "") {
+      userID = UserDataStore.getUserByName("ANONYMOUS")!.uuid;
+    } else if (userNameOrUUID.match(v4)) {
+      if (!UserDataStore.getUserById(userNameOrUUID)) {
+        throw new Error("User not found");
+      }
+      userID = userNameOrUUID;
+    } else {
+      if (!UserDataStore.getUserByName(userNameOrUUID)) {
+        UserDataStore.addUser(userNameOrUUID);
+      }
+      userID = UserDataStore.getUserByName(userNameOrUUID)!.uuid;
     }
 
     // check if room is open and if auth is provided

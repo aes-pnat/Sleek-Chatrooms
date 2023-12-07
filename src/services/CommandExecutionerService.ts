@@ -26,14 +26,34 @@ class CommandExecutionerService {
         switch (args[0]) {
           case "room":
             if (!args[1]) {
-              console.log(`Argument "name" required for command "create room"`);
-              break;
+              cmdResponse = new Message(
+                `Argument "name" required for command "create room"`,
+                server.uuid,
+                room.uuid,
+                new Date()
+              );
+
+              cmdReturn = {
+                msg: cmdResponse,
+                targetUsers: [sender.uuid],
+                storeMsg: false,
+              };
+              return cmdReturn;
             }
             if (!isRegistered && !args[2]) {
-              console.log(
-                `Argument "public" required for command "create room" for unregistered users`
+              cmdResponse = new Message(
+                `Argument "public" required for command "create room" for unregistered users`,
+                server.uuid,
+                room.uuid,
+                new Date()
               );
-              break;
+
+              cmdReturn = {
+                msg: cmdResponse,
+                targetUsers: [sender.uuid],
+                storeMsg: false,
+              };
+              return cmdReturn;
             }
             RoomsDataStore.addRoom(args[1], args[2]);
 
@@ -60,8 +80,19 @@ class CommandExecutionerService {
             let user = UsersDataStore.getUserByName(args[1])!;
 
             if (SecurityDataStore.getUserById(user.uuid)) {
-              console.log(`User "${args[1]}" already registered`);
-              break;
+              cmdResponse = new Message(
+                `User "${args[1]}" already registered`,
+                server.uuid,
+                room.uuid,
+                new Date()
+              );
+
+              cmdReturn = {
+                msg: cmdResponse,
+                targetUsers: [sender.uuid],
+                storeMsg: false,
+              };
+              return cmdReturn;
             }
             SecurityService.registerUser(user.uuid, args[2]);
 

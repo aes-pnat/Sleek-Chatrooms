@@ -36,7 +36,7 @@ export async function messageCallback(
   if (isBotMessage) {
     // msg.sender instanceof Bot
     alert = colorByName(
-      `[${msgTimestamp}] To "${userRecipient}" ::: Announcement in room "${roomName}": ${msgContent}`,
+      `[${msgTimestamp}] To "${userRecipient}" ::: |${userSender}| to "${roomName}": ${msgContent}`,
       userRecipient
     );
   } else {

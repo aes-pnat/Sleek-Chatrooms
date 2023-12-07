@@ -4,6 +4,9 @@ import RoomService from "./services/RoomService";
 import UserMessageQueueService from "./services/UserMessageQueueService";
 
 class Sleek {
+  public setServerDebug() {
+    UserMessageQueueService.setServerDebug();
+  }
   public setOutputChannel(callback: Function) {
     UserMessageQueueService.callback = callback;
   }
