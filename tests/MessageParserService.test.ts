@@ -2,7 +2,6 @@ import RoomsDataStore from "../src/RoomsDataStore";
 import SecurityDataStore from "../src/SecurityDataStore";
 import UsersDataStore from "../src/UsersDataStore";
 import { Room } from "../src/models/Room";
-import { User } from "../src/models/User";
 import MessageParserService from "../src/services/MessageParserSevice";
 import SecurityService from "../src/services/SecurityService";
 
@@ -30,6 +29,26 @@ describe("MessageParserService test", () => {
     RoomsDataStore.rooms = [new Room("general", true)];
 
     jest.clearAllMocks();
+  });
+
+  it("imitation of SERVER returns a warning", () => {
+    const msg = `SErvER@general Hello`;
+    const parsedMessage = MessageParserService.parseMessage(msg);
+    expect(parsedMessage.content).toBe(
+      "! User attempted to mimic SERVER, this incident will be reported !"
+    );
+  });
+
+  it("lack of username parses as anonymous", () => {
+    const msg = `@general Hello`;
+    const parsedMessage = MessageParserService.parseMessage(msg);
+    expect(parsedMessage.content).toBe("Hello");
+    expect(parsedMessage.roomID).toBe(
+      RoomsDataStore.getRoomByName("general")!.uuid
+    );
+    expect(parsedMessage.senderID).toBe(
+      UsersDataStore.getUserByName("ANONYMOUS")!.uuid
+    );
   });
 
   it("parses message with username and roomname successfully", () => {
@@ -132,5 +151,15 @@ describe("MessageParserService test", () => {
     expect(() => MessageParserService.parseMessage(msg)).toThrow(
       "Invalid password"
     );
+  });
+
+  it("message is detected as command", () => {
+    const msg1 = `unregisteredUser@general /command`;
+    const parsedMessage1 = MessageParserService.parseMessage(msg1);
+    expect(parsedMessage1.isCommand).toBeTruthy();
+
+    const msg2 = `unregisteredUser@general not/command`;
+    const parsedMessage2 = MessageParserService.parseMessage(msg2);
+    expect(parsedMessage2.isCommand).toBeFalsy();
   });
 });

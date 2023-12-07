@@ -7,7 +7,7 @@ export class SecurityService {
     SecurityDataStore.addUser(id, passHash);
   }
 
-  public checkValidPassword(id: string, password: string) {
+  public checkValidPassword(id: string, password: string): boolean {
     let user = SecurityDataStore.getUserById(id);
     if (!user) {
       return false;

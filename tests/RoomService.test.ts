@@ -3,7 +3,6 @@ import SecurityDataStore from "../src/SecurityDataStore";
 import UsersDataStore from "../src/UsersDataStore";
 import { Message } from "../src/models/Message";
 import { Room } from "../src/models/Room";
-import { User } from "../src/models/User";
 import RoomService from "../src/services/RoomService";
 import SecurityService from "../src/services/SecurityService";
 import UserMessageQueueService from "../src/services/UserMessageQueueService";

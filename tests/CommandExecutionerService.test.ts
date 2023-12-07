@@ -3,7 +3,6 @@ import UsersDataStore from "../src/UsersDataStore";
 import SecurityDataStore from "../src/SecurityDataStore";
 import RoomsDataStore from "../src/RoomsDataStore";
 import CommandExecutionerService from "../src/services/CommandExecutionerService";
-import { User } from "../src/models/User";
 import { Room } from "../src/models/Room";
 import SecurityService from "../src/services/SecurityService";
 
@@ -61,6 +60,21 @@ describe("CommandExecutionerService test", () => {
     );
   });
 
+  it("[CREATE] missing argument for room creation", () => {
+    const msg = new Message(
+      "/create room",
+      UsersDataStore.getUserByName("registeredUser")!.uuid,
+      RoomsDataStore.getRoomByName("general")!.uuid,
+      new Date()
+    );
+
+    const response = CommandExecutionerService.executeCommand(msg);
+
+    expect(response!.msg.content).toBe(
+      `Argument "name" required for command "create room"`
+    );
+  });
+
   it("[CREATE] valid closed room creation by registered user", () => {
     const msg = new Message(
       "/create room testRoom",
@@ -107,6 +121,36 @@ describe("CommandExecutionerService test", () => {
     expect(response?.storeMsg).toBeTruthy();
   });
 
+  it("[CREATE] missing name for user creation", () => {
+    const msg = new Message(
+      "/create user",
+      UsersDataStore.getUserByName("registeredUser")!.uuid,
+      RoomsDataStore.getRoomByName("general")!.uuid,
+      new Date()
+    );
+
+    const response = CommandExecutionerService.executeCommand(msg);
+
+    expect(response!.msg.content).toBe(
+      `Argument "name" required for command "create user"`
+    );
+  });
+
+  it("[CREATE] missing password for user creation", () => {
+    const msg = new Message(
+      "/create user newUser",
+      UsersDataStore.getUserByName("registeredUser")!.uuid,
+      RoomsDataStore.getRoomByName("general")!.uuid,
+      new Date()
+    );
+
+    const response = CommandExecutionerService.executeCommand(msg);
+
+    expect(response!.msg.content).toBe(
+      `Argument "password" required for command "create user"`
+    );
+  });
+
   it("[CREATE] valid user creation by registered user", () => {
     const msg = new Message(
       "/create user newUser newUserPassword",
@@ -139,6 +183,27 @@ describe("CommandExecutionerService test", () => {
     expect(SecurityDataStore.getUserById(user!.uuid)).not.toBeUndefined();
     expect(response?.targetUsers.length).toBeGreaterThan(1);
     expect(response?.storeMsg).toBeTruthy();
+  });
+
+  it("[CREATE] invalid duplicate user creation", () => {
+    const msg = new Message(
+      "/create user newUser newUserPassword1",
+      UsersDataStore.getUserByName("unregisteredUser")!.uuid,
+      RoomsDataStore.getRoomByName("general")!.uuid,
+      new Date()
+    );
+
+    CommandExecutionerService.executeCommand(msg);
+
+    const msg2 = new Message(
+      "/create user newUser newUserPassword2",
+      UsersDataStore.getUserByName("unregisteredUser")!.uuid,
+      RoomsDataStore.getRoomByName("general")!.uuid,
+      new Date()
+    );
+    const response = CommandExecutionerService.executeCommand(msg2);
+
+    expect(response!.msg.content).toBe(`User "newUser" already registered`);
   });
 
   it("[LIST] invalid argument for command", () => {
@@ -288,6 +353,22 @@ describe("CommandExecutionerService test", () => {
     );
   });
 
+  it("[RENAME] missing argument for room renaming", () => {
+    const msg = new Message(
+      "/rename room",
+      UsersDataStore.getUserByName("registeredUser")!.uuid,
+      RoomsDataStore.getRoomByName("general")!.uuid,
+      new Date()
+    );
+
+    const response = CommandExecutionerService.executeCommand(msg);
+
+    expect(response!.msg.content).toBe(
+      `Argument "roomName" required for command "rename room"`
+    );
+    expect(RoomsDataStore.getRoomByName("general")).not.toBeUndefined();
+  });
+
   it("[RENAME] room renaming by registered user", () => {
     const msg = new Message(
       "/rename room generalRenamed",
@@ -320,6 +401,38 @@ describe("CommandExecutionerService test", () => {
     expect(roomBefore.uuid).toBe(roomAfter.uuid);
     expect(response?.targetUsers.length).toBeGreaterThan(1);
     expect(response?.storeMsg).toBeTruthy();
+  });
+
+  it("[RENAME] missing argument for self renaming", () => {
+    const msg = new Message(
+      "/rename self",
+      UsersDataStore.getUserByName("registeredUser")!.uuid,
+      RoomsDataStore.getRoomByName("general")!.uuid,
+      new Date()
+    );
+
+    const response = CommandExecutionerService.executeCommand(msg);
+
+    expect(response!.msg.content).toBe(
+      `Argument "name" required for command "rename self"`
+    );
+    expect(UsersDataStore.getUserByName("registeredUser")).not.toBeUndefined();
+  });
+
+  it("[RENAME] self renaming to an existing user", () => {
+    const msg = new Message(
+      "/rename self unregisteredUser",
+      UsersDataStore.getUserByName("registeredUser")!.uuid,
+      RoomsDataStore.getRoomByName("general")!.uuid,
+      new Date()
+    );
+
+    const response = CommandExecutionerService.executeCommand(msg);
+
+    expect(response!.msg.content).toBe(
+      `User with name "unregisteredUser" already exists`
+    );
+    expect(UsersDataStore.getUserByName("registeredUser")).not.toBeUndefined();
   });
 
   it("[RENAME] self renaming by registered user", () => {

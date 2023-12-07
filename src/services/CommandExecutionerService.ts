@@ -102,6 +102,20 @@ class CommandExecutionerService {
                 storeMsg: false,
               };
               return cmdReturn;
+            } else if (!args[2]) {
+              cmdResponse = new Message(
+                `Argument "password" required for command "create user"`,
+                server.uuid,
+                room.uuid,
+                new Date()
+              );
+
+              cmdReturn = {
+                msg: cmdResponse,
+                targetUsers: [sender.uuid],
+                storeMsg: false,
+              };
+              return cmdReturn;
             }
 
             if (!UsersDataStore.getUserByName(args[1])) {
@@ -292,6 +306,35 @@ class CommandExecutionerService {
             return cmdReturn;
 
           case "self":
+            if (!args[1]) {
+              cmdResponse = new Message(
+                `Argument "name" required for command "rename self"`,
+                server.uuid,
+                room.uuid,
+                new Date()
+              );
+
+              cmdReturn = {
+                msg: cmdResponse,
+                targetUsers: [sender.uuid],
+                storeMsg: false,
+              };
+              return cmdReturn;
+            } else if (UsersDataStore.getUserByName(args[1])) {
+              cmdResponse = new Message(
+                `User with name "${args[1]}" already exists`,
+                server.uuid,
+                room.uuid,
+                new Date()
+              );
+
+              cmdReturn = {
+                msg: cmdResponse,
+                targetUsers: [sender.uuid],
+                storeMsg: false,
+              };
+              return cmdReturn;
+            }
             sender.name = args[1];
             cmdResponse = new Message(
               `User ${sender.name} renamed themselves to "${args[1]}"`,

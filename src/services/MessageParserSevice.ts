@@ -25,7 +25,7 @@ export class MessageParserService {
     if (
       userNameOrUUID.toLowerCase() === "server" ||
       userNameOrUUID.toLowerCase() ===
-        UserDataStore.getUserByName("SERVER")!.uuid
+        UserDataStore.getUserByName("SERVER")!.uuid.toLowerCase()
     ) {
       return new Message(
         "! User attempted to mimic SERVER, this incident will be reported !",
