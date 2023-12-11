@@ -1,9 +1,7 @@
-import "colors";
-
 import { Message } from "../models/Message";
-import { colorByName } from "../../utils";
 import UsersDataStore from "../UsersDataStore";
 import RoomsDataStore from "../RoomsDataStore";
+import { getTimestamp } from "../../utils";
 
 var colors = require("colors/safe");
 
@@ -14,7 +12,7 @@ const defaultCallback = (
   userSenderName: string,
   content: string,
   timestamp: string
-) => {
+): Promise<undefined> => {
   return new Promise((resolve) => {
     console.log(
       isBot,
@@ -39,19 +37,8 @@ type QueueCollection = {
 class UserMessageQueueService {
   public queue: QueueCollection = {};
   public callback: Function = defaultCallback;
-  private serverDebug: boolean = false;
-
-  public setServerDebug() {
-    this.serverDebug = true;
-  }
 
   public async enqueue(userRecipientID: string, msg: Message) {
-    if (
-      this.serverDebug &&
-      userRecipientID !== UsersDataStore.getUserByName("SERVER")!.uuid
-    ) {
-      return;
-    }
     let userRecipient = UsersDataStore.getUserById(userRecipientID)!;
     let userSender = UsersDataStore.getUserById(msg.senderID)!;
     let room = RoomsDataStore.getRoomById(msg.roomID);
@@ -67,9 +54,7 @@ class UserMessageQueueService {
     }
 
     console.log(
-      colors.bold(`   Enqueueing message for `) +
-        colorByName(userRecipient.name, userRecipient.name) +
-        colors.bold(`: ${msg.content} `)
+      `   Enqueueing message for ${userRecipient.name}: ${msg.content} `
     );
     if (!this.queue[room!.uuid]) {
       this.queue[room!.uuid] = {};
@@ -85,11 +70,12 @@ class UserMessageQueueService {
         userRecipient.name,
         userSender.name,
         msg.content,
-        msg.getTimestamp()
+        getTimestamp(msg.datetime!)
       )
     );
 
     this.processQueue(room!.uuid, userRecipient.uuid);
+    return Promise.resolve();
   }
 
   public processQueue(room: string, user: string) {
@@ -124,7 +110,7 @@ class UserMessageQueueService {
       idle: totalMessages === 0,
       totalMessages: totalMessages,
     };
-    console.log(output);
+    console.log(JSON.stringify(output));
     return output;
   }
 }

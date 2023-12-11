@@ -14,10 +14,6 @@ class CommandExecutionerService {
     let isRegistered = SecurityDataStore.getUserById(sender.uuid);
     let server = UsersDataStore.getUserByName("SERVER")!;
 
-    console.log(
-      `{${sender.name}} Executing command: "${command}" with args: "${args}"`
-    );
-
     let cmdResponse: Message;
     let cmdReturn: ReturnCommand;
 

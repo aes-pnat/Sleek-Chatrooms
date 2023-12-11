@@ -8,16 +8,17 @@ const v4 = new RegExp(
   /^[0-9(a-f|A-F)]{8}-[0-9(a-f|A-F)]{4}-4[0-9(a-f|A-F)]{3}-[89ab][0-9(a-f|A-F)]{3}-[0-9(a-f|A-F)]{12}$/i
 );
 export class MessageParserService {
-  public parseMessage(msg: string) {
+  public parseMessage(message: string) {
     // [USERNAME[:AUTH]]@ID /COMMAND [ARG [ARG [ARG [...]]]]
     // username, id, arg not /[A-Za-z0-9_\-]/
-    let userAndAuth = msg.split("@")[0];
-    let userNameOrUUID = userAndAuth.split(":")[0];
-    let auth = userAndAuth.substring(userNameOrUUID.length + 1);
+    const msg = message.trim();
+    const userAndAuth = msg.split("@")[0];
+    const userNameOrUUID = userAndAuth.split(":")[0];
+    const auth = userAndAuth.substring(userNameOrUUID.length + 1);
 
-    let roomCommandOrMessage = msg.split("@")[1];
-    let roomNameOrUUID = roomCommandOrMessage.split(" ")[0];
-    let content = roomCommandOrMessage.substring(roomNameOrUUID.length + 1);
+    const roomCommandOrMessage = msg.split("@")[1];
+    const roomNameOrUUID = roomCommandOrMessage.split(" ")[0];
+    const content = roomCommandOrMessage.substring(roomNameOrUUID.length + 1);
 
     let userID;
     let roomID;
