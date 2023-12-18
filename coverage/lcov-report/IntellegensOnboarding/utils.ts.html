@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">73.33% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>11/15</span>
+                <span class='fraction'>15/15</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">42.85% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>6/14</span>
+                <span class='fraction'>7/14</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">71.42% </span>
+                <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>10/14</span>
+                <span class='fraction'>14/14</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line medium'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -98,7 +98,7 @@
 <a name='L33'></a><a href='#L33'>33</a>
 <a name='L34'></a><a href='#L34'>34</a>
 <a name='L35'></a><a href='#L35'>35</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">8x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
@@ -110,22 +110,22 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">4x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -145,13 +145,13 @@ export async function messageCallback(
 ): Promise&lt;void&gt; {
   let alert;
   await wait(500 * (1 + Math.random()));
-<span class="cstat-no" title="statement not covered" >  if (isBotMessage) {</span>
+  if (isBotMessage) {
     // msg.sender instanceof Bot
-<span class="cstat-no" title="statement not covered" >    alert = `[${msgTimestamp}] To "${userRecipient}" ::: |${userSender}| to "${roomName}": ${msgContent}`;</span>
+    alert = `[${msgTimestamp}] To "${userRecipient}" ::: |${userSender}| to "${roomName}": ${msgContent}`;
   } else {
-<span class="cstat-no" title="statement not covered" >    alert = `[${msgTimestamp}] To "${userRecipient}" ::: "${userSender}" posted in "${roomName}": "${msgContent}"`;</span>
+    alert = `[${msgTimestamp}] To "${userRecipient}" ::: "${userSender}" posted in "${roomName}": "${msgContent}"`;
   }
-<span class="cstat-no" title="statement not covered" >  console.log(alert);</span>
+  console.log(alert);
 }
 &nbsp;
 export function getTimestamp(datetime: Date | undefined): string {
@@ -161,9 +161,9 @@ export function getTimestamp(datetime: Date | undefined): string {
   const ms = datetime?.getMilliseconds();
   return datetime === undefined
     ? <span class="branch-0 cbranch-no" title="branch not covered" >"timestamp"</span>
-    : `${h! &gt; 9 ? `${h}` : <span class="branch-1 cbranch-no" title="branch not covered" >`0${h}`}</span>:${m! &gt; 9 ? `${m}` : <span class="branch-1 cbranch-no" title="branch not covered" >`0${m}`}</span>:${
-        s! &gt; 9 ? `${s}` : <span class="branch-1 cbranch-no" title="branch not covered" >`0${s}`</span>
-      }:${ms! &gt; 99 ? <span class="branch-0 cbranch-no" title="branch not covered" >`${ms}` </span>: ms! &gt; 9 ? `0${ms}` : <span class="branch-1 cbranch-no" title="branch not covered" >`00${ms}`}</span>`;
+    : `${h! &gt; 9 ? <span class="branch-0 cbranch-no" title="branch not covered" >`${h}` </span>: `0${h}`}:${m! &gt; 9 ? `${m}` : <span class="branch-1 cbranch-no" title="branch not covered" >`0${m}`}</span>:${
+        s! &gt; 9 ? <span class="branch-0 cbranch-no" title="branch not covered" >`${s}` </span>: `0${s}`
+      }:${ms! &gt; 99 ? `${ms}` : <span class="branch-1 cbranch-no" title="branch not covered" >ms! &gt; 9 ? `0${ms}` : `00${ms}`}</span>`;
 }
 &nbsp;</pre></td></tr></table></pre>
 
@@ -172,7 +172,7 @@ export function getTimestamp(datetime: Date | undefined): string {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2023-12-11T13:38:19.215Z
+                at 2023-12-18T08:42:11.633Z
             </div>
         <script src="../prettify.js"></script>
         <script>

@@ -34,9 +34,15 @@ type QueueCollection = {
     };
   };
 };
+
+type State = {
+  idle: boolean;
+  totalMessages: number;
+};
 class UserMessageQueueService {
   public queue: QueueCollection = {};
   public callback: Function = defaultCallback;
+  public state: State = { idle: true, totalMessages: 0 };
 
   public async enqueue(userRecipientID: string, msg: Message) {
     let userRecipient = UsersDataStore.getUserById(userRecipientID)!;
@@ -53,9 +59,6 @@ class UserMessageQueueService {
       throw Error(`   User sender ${msg.senderID} not found!`);
     }
 
-    console.log(
-      `   Enqueueing message for ${userRecipient.name}: ${msg.content} `
-    );
     if (!this.queue[room!.uuid]) {
       this.queue[room!.uuid] = {};
     }
@@ -63,6 +66,10 @@ class UserMessageQueueService {
       this.queue[room!.uuid][userRecipient.uuid] = { q: [], cs: false };
       //critical_section = false;
     }
+
+    console.log(
+      `   Enqueueing message for ${userRecipient.name}: ${msg.content} `
+    );
     this.queue[room!.uuid][userRecipient.uuid].q.push(() =>
       this.callback(
         userSender.isBot,
@@ -73,45 +80,34 @@ class UserMessageQueueService {
         getTimestamp(msg.datetime!)
       )
     );
+    this.state.idle = false;
+    this.state.totalMessages++;
+    this.printState();
 
     this.processQueue(room!.uuid, userRecipient.uuid);
     return Promise.resolve();
   }
 
   public processQueue(room: string, user: string) {
-    this.printState();
     if (this.queue[room][user].cs) {
       return;
     } else {
       this.queue[room][user].cs = true;
       this.queue[room][user].q.shift()!().then(() => {
+        this.state.totalMessages--;
+        this.state.idle = this.state.totalMessages === 0;
+        this.printState();
         this.queue[room][user].cs = false;
         if (this.queue[room][user].q.length >= 1) {
           this.processQueue(room, user);
         }
       });
     }
-    this.printState();
-  }
-
-  public getTotalMessages() {
-    let totalMsgs = 0;
-    Object.keys(this.queue).forEach((room) => {
-      Object.keys(this.queue[room]).forEach((user) => {
-        totalMsgs += this.queue[room][user].q.length;
-      });
-    });
-    return totalMsgs;
   }
 
   public printState(): Object {
-    let totalMessages = this.getTotalMessages();
-    let output = {
-      idle: totalMessages === 0,
-      totalMessages: totalMessages,
-    };
-    console.log(JSON.stringify(output));
-    return output;
+    console.log(JSON.stringify(this.state));
+    return this.state;
   }
 }
 
