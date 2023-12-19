@@ -26,7 +26,8 @@ class CommandExecutionerService {
                 `Argument "name" required for command "create room"`,
                 server.uuid,
                 room.uuid,
-                new Date()
+                new Date(),
+                "error"
               );
 
               cmdReturn = {
@@ -41,7 +42,8 @@ class CommandExecutionerService {
                 `Argument "public" required for command "create room" for unregistered users`,
                 server.uuid,
                 room.uuid,
-                new Date()
+                new Date(),
+                "error"
               );
 
               cmdReturn = {
@@ -59,7 +61,8 @@ class CommandExecutionerService {
               }"`,
               server.uuid,
               room.uuid,
-              new Date()
+              new Date(),
+              "create/room"
             );
             cmdReturn = {
               msg: cmdResponse,
@@ -75,7 +78,8 @@ class CommandExecutionerService {
                 `Argument "name" required for command "create user"`,
                 server.uuid,
                 room.uuid,
-                new Date()
+                new Date(),
+                "error"
               );
 
               cmdReturn = {
@@ -89,7 +93,8 @@ class CommandExecutionerService {
                 `User name "${args[1]}" is reserved`,
                 server.uuid,
                 room.uuid,
-                new Date()
+                new Date(),
+                "error"
               );
 
               cmdReturn = {
@@ -103,7 +108,8 @@ class CommandExecutionerService {
                 `Argument "password" required for command "create user"`,
                 server.uuid,
                 room.uuid,
-                new Date()
+                new Date(),
+                "error"
               );
 
               cmdReturn = {
@@ -124,7 +130,8 @@ class CommandExecutionerService {
                 `User "${args[1]}" already registered`,
                 server.uuid,
                 room.uuid,
-                new Date()
+                new Date(),
+                "error"
               );
 
               cmdReturn = {
@@ -140,7 +147,8 @@ class CommandExecutionerService {
               `User ${sender.name} created user "${args[1]}"`,
               server.uuid,
               room.uuid,
-              new Date()
+              new Date(),
+              "create/user"
             );
 
             cmdReturn = {
@@ -156,7 +164,8 @@ class CommandExecutionerService {
               `Argument "${args[0]}" invalid for command "create"`,
               server.uuid,
               room.uuid,
-              new Date()
+              new Date(),
+              "error"
             );
 
             cmdReturn = {
@@ -177,7 +186,8 @@ class CommandExecutionerService {
                 .join(", "),
               server.uuid,
               room.uuid,
-              new Date()
+              new Date(),
+              "list/rooms"
             );
 
             cmdReturn = {
@@ -202,7 +212,8 @@ class CommandExecutionerService {
                 .join(", "),
               server.uuid,
               room.uuid,
-              new Date()
+              new Date(),
+              "list/users"
             );
 
             cmdReturn = {
@@ -225,7 +236,8 @@ class CommandExecutionerService {
                 .join("\n"),
               server.uuid,
               room.uuid,
-              new Date()
+              new Date(),
+              "list/messages"
             );
 
             cmdReturn = {
@@ -241,7 +253,8 @@ class CommandExecutionerService {
               `Argument "${args[0]}" invalid for command "list"`,
               server.uuid,
               room.uuid,
-              new Date()
+              new Date(),
+              "error"
             );
 
             cmdReturn = {
@@ -261,7 +274,8 @@ class CommandExecutionerService {
                 `Argument "roomName" required for command "rename room"`,
                 server.uuid,
                 room.uuid,
-                new Date()
+                new Date(),
+                "error"
               );
 
               cmdReturn = {
@@ -275,7 +289,8 @@ class CommandExecutionerService {
                 `Room with name "${args[2]}" already exists`,
                 server.uuid,
                 room.uuid,
-                new Date()
+                new Date(),
+                "error"
               );
 
               cmdReturn = {
@@ -290,7 +305,8 @@ class CommandExecutionerService {
               `User ${sender.name} renamed room to "${args[1]}"`,
               server.uuid,
               room.uuid,
-              new Date()
+              new Date(),
+              "rename/room"
             );
 
             cmdReturn = {
@@ -307,7 +323,8 @@ class CommandExecutionerService {
                 `Argument "name" required for command "rename self"`,
                 server.uuid,
                 room.uuid,
-                new Date()
+                new Date(),
+                "error"
               );
 
               cmdReturn = {
@@ -321,7 +338,8 @@ class CommandExecutionerService {
                 `User with name "${args[1]}" already exists`,
                 server.uuid,
                 room.uuid,
-                new Date()
+                new Date(),
+                "error"
               );
 
               cmdReturn = {
@@ -336,7 +354,8 @@ class CommandExecutionerService {
               `User ${sender.name} renamed themselves to "${args[1]}"`,
               server.uuid,
               room.uuid,
-              new Date()
+              new Date(),
+              "rename/self"
             );
 
             cmdReturn = {
@@ -352,7 +371,8 @@ class CommandExecutionerService {
               `Argument "${args[0]}" invalid for command "rename"`,
               server.uuid,
               room.uuid,
-              new Date()
+              new Date(),
+              "error"
             );
 
             cmdReturn = {
@@ -369,7 +389,8 @@ class CommandExecutionerService {
           `Command "${command}" invalid`,
           server.uuid,
           room.uuid,
-          new Date()
+          new Date(),
+          "error"
         );
 
         cmdReturn = {

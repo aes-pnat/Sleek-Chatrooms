@@ -3,23 +3,29 @@ import UsersDataStore from "../UsersDataStore";
 import RoomsDataStore from "../RoomsDataStore";
 import { getTimestamp } from "../../utils";
 
-var colors = require("colors/safe");
-
 const defaultCallback = (
   isBot: boolean,
   roomName: string,
+  roomID: string,
   userRecipientName: string,
+  userRecipientID: string,
   userSenderName: string,
+  userSenderID: string,
   content: string,
+  commandReturnType: string | undefined,
   timestamp: string
 ): Promise<undefined> => {
   return new Promise((resolve) => {
     console.log(
       isBot,
       roomName,
+      roomID,
       userRecipientName,
+      userRecipientID,
       userSenderName,
+      userSenderID,
       content,
+      commandReturnType,
       timestamp
     );
     resolve(void 0);
@@ -74,9 +80,13 @@ class UserMessageQueueService {
       this.callback(
         userSender.isBot,
         room!.name,
+        room!.uuid,
         userRecipient.name,
+        userRecipient.uuid,
         userSender.name,
+        userSender.uuid,
         msg.content,
+        msg.commandReturnType,
         getTimestamp(msg.datetime!)
       )
     );

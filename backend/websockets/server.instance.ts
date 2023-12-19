@@ -1,8 +1,6 @@
 import WebSocket from "ws";
 import App from "../src/Sleek";
 
-const crypto = require("crypto");
-
 const wss = new WebSocket.Server({ port: 8080 });
 
 let ws_store: { ws: WebSocket; uid: string }[] = [];
@@ -10,19 +8,31 @@ let ws_store: { ws: WebSocket; uid: string }[] = [];
 const websocketCallback = async (
   isBotMessage: boolean,
   roomName: string,
+  roomID: string,
   userRecipient: string,
+  userRecipientID: string,
   userSender: string,
+  userSenderID: string,
   msgContent: string,
+  commandReturnType: string | undefined,
   msgTimestamp: string
 ): Promise<void> => {
-  let alert: string;
-  if (isBotMessage) {
-    alert = `[${msgTimestamp}] To "${userRecipient}" ::: |${userSender}| to "${roomName}": ${msgContent}`;
-  } else {
-    alert = `[${msgTimestamp}] To "${userRecipient}" ::: "${userSender}" posted in "${roomName}": "${msgContent}"`;
-  }
+  const alert = JSON.stringify({
+    isBotMessage: isBotMessage,
+    roomName: roomName,
+    roomID: roomID,
+    userRecipient: userRecipient,
+    userRecipientID: userRecipientID,
+    userSender: userSender,
+    userSenderID: userSenderID,
+    content: msgContent,
+    commandReturnType: commandReturnType,
+    timestamp: msgTimestamp,
+  });
 
-  ws_store.find((x) => x.uid === userRecipient)?.ws.send(alert);
+  ws_store
+    .filter((socket) => socket.uid === userRecipient)
+    .forEach((socket) => socket.ws.send(alert));
 };
 
 App.setOutputChannel(websocketCallback);

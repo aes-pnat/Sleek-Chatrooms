@@ -5,9 +5,13 @@ export function wait(ms: number) {
 export async function messageCallback(
   isBotMessage: boolean,
   roomName: string,
+  roomID: string,
   userRecipient: string,
+  userRecipientID: string,
   userSender: string,
+  userSenderID: string,
   msgContent: string,
+  commandReturnType: string | undefined,
   msgTimestamp: string
 ): Promise<void> {
   let alert;
