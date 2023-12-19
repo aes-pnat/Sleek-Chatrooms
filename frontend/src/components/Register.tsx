@@ -39,7 +39,7 @@ export const Register = ({ user, setUser }: RegisterProps) => {
     console.log(formData);
     setUser(formData);
     setFormData({ username: "", password: "" });
-    navigate("/messenger");
+    navigate("/messenger", { replace: true });
   };
   return (
     <Container
@@ -50,46 +50,49 @@ export const Register = ({ user, setUser }: RegisterProps) => {
         elevation={3}
         sx={{ ...styles.centerElement, padding: "10% 10% 10% 10%" }}
       >
-        <Grid container spacing={1}>
-          <Grid item xs={12} sx={{ ...styles.centerElement, padding: "2%" }}>
-            <Typography variant="h4" sx={{ fontFamily: "monospace" }}>
-              Sleek
-            </Typography>
+        <form onSubmit={handleSubmit}>
+          <Grid container spacing={1}>
+            <Grid item xs={12} sx={{ ...styles.centerElement, padding: "2%" }}>
+              <Typography variant="h4" sx={{ fontFamily: "monospace" }}>
+                Sleek
+              </Typography>
+            </Grid>
+            <Grid item xs={12} sx={{ padding: "2%" }}>
+              <TextField
+                id="username"
+                label="Username"
+                variant="outlined"
+                value={formData.username}
+                onChange={(e) => {
+                  setFormData({ ...formData, username: e.target.value });
+                }}
+                sx={styles.formItem}
+              />
+            </Grid>
+            <Grid item xs={12} sx={{ padding: "2%" }}>
+              <TextField
+                id="password"
+                label="Password"
+                variant="outlined"
+                value={formData.password}
+                onChange={(e) => {
+                  setFormData({ ...formData, password: e.target.value });
+                }}
+                sx={styles.formItem}
+              />
+            </Grid>
+            <Grid item xs={12} sx={{ ...styles.centerElement, padding: "2%" }}>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ width: "30%" }}
+              >
+                Submit
+              </Button>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sx={{ padding: "2%" }}>
-            <TextField
-              id="outlined-basic"
-              label="Username"
-              variant="outlined"
-              value={formData.username}
-              onChange={(e) => {
-                setFormData({ ...formData, username: e.target.value });
-              }}
-              sx={styles.formItem}
-            />
-          </Grid>
-          <Grid item xs={12} sx={{ padding: "2%" }}>
-            <TextField
-              id="outlined-basic"
-              label="Password"
-              variant="outlined"
-              value={formData.password}
-              onChange={(e) => {
-                setFormData({ ...formData, password: e.target.value });
-              }}
-              sx={styles.formItem}
-            />
-          </Grid>
-          <Grid item xs={12} sx={{ ...styles.centerElement, padding: "2%" }}>
-            <Button
-              variant="contained"
-              onClick={() => handleSubmit()}
-              sx={{ width: "30%" }}
-            >
-              Submit
-            </Button>
-          </Grid>
-        </Grid>
+        </form>
       </Paper>
     </Container>
   );

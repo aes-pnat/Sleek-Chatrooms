@@ -3,6 +3,7 @@ import RoomsDataStore from "../RoomsDataStore";
 import UsersDataStore from "../UsersDataStore";
 import SecurityDataStore from "../SecurityDataStore";
 import SecurityService from "./SecurityService";
+import { getTimestamp } from "../../utils";
 
 type ReturnCommand = { msg: Message; targetUsers: string[]; storeMsg: boolean };
 class CommandExecutionerService {
@@ -180,10 +181,14 @@ class CommandExecutionerService {
         switch (args[0]) {
           case "rooms":
             cmdResponse = new Message(
-              RoomsDataStore.rooms
-                .filter((room) => isRegistered || room.open)
-                .map((room) => `[${room.name} : ${room.uuid}]`)
-                .join(", "),
+              "{"
+                .concat(
+                  RoomsDataStore.rooms
+                    .filter((room) => isRegistered || room.open)
+                    .map((room) => `"${room.uuid}":"${room.name}"`)
+                    .join(", ")
+                )
+                .concat("}"),
               server.uuid,
               room.uuid,
               new Date(),
@@ -200,16 +205,22 @@ class CommandExecutionerService {
 
           case "users":
             cmdResponse = new Message(
-              room.users
-                .filter(
-                  (userID) =>
-                    isRegistered || !SecurityDataStore.getUserById(userID)
+              "{"
+                .concat(
+                  room.users
+                    .filter(
+                      (userID) =>
+                        isRegistered || !SecurityDataStore.getUserById(userID)
+                    )
+                    .map(
+                      (userID) =>
+                        `"${userID}":"${
+                          UsersDataStore.getUserById(userID)?.name
+                        }"`
+                    )
+                    .join(", ")
                 )
-                .map(
-                  (userID) =>
-                    `[${UsersDataStore.getUserById(userID)?.name} : ${userID}]`
-                )
-                .join(", "),
+                .concat("}"),
               server.uuid,
               room.uuid,
               new Date(),
@@ -226,14 +237,25 @@ class CommandExecutionerService {
 
           case "messages":
             cmdResponse = new Message(
-              room.messages
-                .map(
-                  (message) =>
-                    `${UsersDataStore.getUserById(message.senderID)!.name}: ${
-                      message.content
-                    }`
-                )
-                .join("\n"),
+              "[".concat(
+                room.messages
+                  .map((roomMsg) =>
+                    JSON.stringify({
+                      content: roomMsg.content,
+                      senderName: UsersDataStore.getUserById(roomMsg.senderID)
+                        ?.name,
+                      senderID: roomMsg.senderID,
+                      roomName: RoomsDataStore.getRoomById(roomMsg.roomID)
+                        ?.name,
+                      roomID: roomMsg.roomID,
+                      timestamp: getTimestamp(roomMsg.datetime),
+                      isCommand: roomMsg.isCommand,
+                      commandReturnType: roomMsg.commandReturnType,
+                    })
+                  )
+                  .join(",")
+                  .concat("]")
+              ),
               server.uuid,
               room.uuid,
               new Date(),
