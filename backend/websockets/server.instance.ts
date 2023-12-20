@@ -1,37 +1,27 @@
 import WebSocket from "ws";
 import App from "../src/Sleek";
+import { APIMessage } from "../utils";
 
 const wss = new WebSocket.Server({ port: 8080 });
 
 let ws_store: { ws: WebSocket; uid: string }[] = [];
 
-const websocketCallback = async (
-  isBotMessage: boolean,
-  roomName: string,
-  roomID: string,
-  userRecipient: string,
-  userRecipientID: string,
-  userSender: string,
-  userSenderID: string,
-  msgContent: string,
-  commandReturnType: string | undefined,
-  msgTimestamp: string
-): Promise<void> => {
+const websocketCallback = async (apiMessage: APIMessage): Promise<void> => {
   const alert = JSON.stringify({
-    isBotMessage: isBotMessage,
-    roomName: roomName,
-    roomID: roomID,
-    userRecipient: userRecipient,
-    userRecipientID: userRecipientID,
-    userSender: userSender,
-    userSenderID: userSenderID,
-    content: msgContent,
-    commandReturnType: commandReturnType,
-    timestamp: msgTimestamp,
+    isBotMessage: apiMessage.isBot,
+    roomName: apiMessage.roomName,
+    roomID: apiMessage.roomID,
+    userRecipient: apiMessage.userRecipientName,
+    userRecipientID: apiMessage.userRecipientID,
+    userSender: apiMessage.userSenderName,
+    userSenderID: apiMessage.userSenderID,
+    content: apiMessage.content,
+    commandReturnType: apiMessage.commandReturnType,
+    timestamp: apiMessage.timestamp,
   });
 
   ws_store
-    .filter((socket) => socket.uid === userRecipient)
+    .filter((socket) => socket.uid === apiMessage.userRecipientName)
     .forEach((socket) => socket.ws.send(alert));
 };
 

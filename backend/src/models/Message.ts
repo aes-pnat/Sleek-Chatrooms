@@ -4,14 +4,14 @@ export class Message {
   public roomID: string;
   public datetime: Date | undefined;
   public isCommand: boolean;
-  public commandReturnType: string | undefined;
+  public commandReturnType: string | null;
 
   constructor(
     content: string,
     senderID: string,
     roomID: string,
     datetime: Date | undefined = undefined,
-    commandReturnType: string | undefined = undefined
+    commandReturnType: string | null = null
   ) {
     this.content = content;
     this.senderID = senderID;

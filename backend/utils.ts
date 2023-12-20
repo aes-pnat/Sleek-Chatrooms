@@ -1,26 +1,28 @@
+export type APIMessage = {
+  isBot: boolean;
+  roomName: string;
+  roomID: string;
+  userRecipientName: string;
+  userRecipientID: string;
+  userSenderName: string;
+  userSenderID: string;
+  content: string;
+  commandReturnType: string | null;
+  timestamp: string;
+};
+
 export function wait(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function messageCallback(
-  isBotMessage: boolean,
-  roomName: string,
-  roomID: string,
-  userRecipient: string,
-  userRecipientID: string,
-  userSender: string,
-  userSenderID: string,
-  msgContent: string,
-  commandReturnType: string | undefined,
-  msgTimestamp: string
-): Promise<void> {
+export async function messageCallback(apiMessage: APIMessage): Promise<void> {
   let alert;
   await wait(500 * (1 + Math.random()));
-  if (isBotMessage) {
+  if (apiMessage.isBot) {
     // msg.sender instanceof Bot
-    alert = `[${msgTimestamp}] To "${userRecipient}" ::: |${userSender}| to "${roomName}": ${msgContent}`;
+    alert = `[${apiMessage.timestamp}] To "${apiMessage.userRecipientName}" ::: |${apiMessage.userSenderName}| to "${apiMessage.roomName}": ${apiMessage.content}`;
   } else {
-    alert = `[${msgTimestamp}] To "${userRecipient}" ::: "${userSender}" posted in "${roomName}": "${msgContent}"`;
+    alert = `[${apiMessage.timestamp}] To "${apiMessage.userRecipientName}" ::: "${apiMessage.userSenderName}" posted in "${apiMessage.roomName}": "${apiMessage.content}"`;
   }
   console.log(alert);
 }

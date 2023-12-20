@@ -36,7 +36,10 @@ export class RoomService {
       command.targetUsers.forEach((userRecipientID) => {
         UserMessageQueueService.enqueue(userRecipientID, command!.msg);
       });
-      if (command?.storeMsg) room.messages.push(msg);
+      if (command?.storeMsg) {
+        room.messages.push(msg);
+        room.messages.push(command!.msg);
+      }
     } else {
       /* Message itself */
       room.users.forEach((userRecipient) => {

@@ -1,25 +1,16 @@
 import React from "react";
-import "./App.css";
 import { Main } from "./components/Main";
-import { Container } from "@mui/material";
+import { Container, CssBaseline, ThemeProvider } from "@mui/material";
+import { useThemeContext } from "./contexts/ThemeContext";
+import { themes } from "./util/themes";
 
 function App() {
+  const { currentTheme } = useThemeContext();
   return (
-    <Container
-      sx={{
-        // backgroundColor: "#ffffff",
-        minHeight: "100vh",
-        minWidth: "100vw",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        // fontSize: "calc(10px + 2vmin)",
-        // color: "white",
-      }}
-    >
+    <ThemeProvider theme={currentTheme == "dark" ? themes.dark : themes.light}>
+      <CssBaseline />
       <Main />
-    </Container>
+    </ThemeProvider>
   );
 }
 

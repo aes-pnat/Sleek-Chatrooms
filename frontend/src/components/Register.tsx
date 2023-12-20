@@ -7,7 +7,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { UserType } from "../types/Types";
+import { UserType } from "../util/types";
 import { useNavigate } from "react-router-dom";
 
 type RegisterProps = {

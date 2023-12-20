@@ -2,31 +2,21 @@ import { Message } from "../models/Message";
 import UsersDataStore from "../UsersDataStore";
 import RoomsDataStore from "../RoomsDataStore";
 import { getTimestamp } from "../../utils";
+import { APIMessage } from "../../utils";
 
-const defaultCallback = (
-  isBot: boolean,
-  roomName: string,
-  roomID: string,
-  userRecipientName: string,
-  userRecipientID: string,
-  userSenderName: string,
-  userSenderID: string,
-  content: string,
-  commandReturnType: string | undefined,
-  timestamp: string
-): Promise<undefined> => {
+const defaultCallback = (apiMessage: APIMessage): Promise<undefined> => {
   return new Promise((resolve) => {
     console.log(
-      isBot,
-      roomName,
-      roomID,
-      userRecipientName,
-      userRecipientID,
-      userSenderName,
-      userSenderID,
-      content,
-      commandReturnType,
-      timestamp
+      apiMessage.isBot,
+      apiMessage.roomName,
+      apiMessage.roomID,
+      apiMessage.userRecipientName,
+      apiMessage.userRecipientID,
+      apiMessage.userSenderName,
+      apiMessage.userSenderID,
+      apiMessage.content,
+      apiMessage.commandReturnType,
+      apiMessage.timestamp
     );
     resolve(void 0);
   });
@@ -76,19 +66,21 @@ class UserMessageQueueService {
     console.log(
       `   Enqueueing message for ${userRecipient.name}: ${msg.content} `
     );
+    const apiMessage = {
+      isBot: userSender.isBot,
+      roomName: room!.name,
+      roomID: room!.uuid,
+      userRecipientName: userRecipient.name,
+      userRecipientID: userRecipient.uuid,
+      userSenderName: userSender.name,
+      userSenderID: userSender.uuid,
+      content: msg.content,
+      commandReturnType: msg.commandReturnType,
+      timestamp: getTimestamp(msg.datetime!),
+    };
+
     this.queue[room!.uuid][userRecipient.uuid].q.push(() =>
-      this.callback(
-        userSender.isBot,
-        room!.name,
-        room!.uuid,
-        userRecipient.name,
-        userRecipient.uuid,
-        userSender.name,
-        userSender.uuid,
-        msg.content,
-        msg.commandReturnType,
-        getTimestamp(msg.datetime!)
-      )
+      this.callback(apiMessage)
     );
     this.state.idle = false;
     this.state.totalMessages++;
