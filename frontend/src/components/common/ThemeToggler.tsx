@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import { Switch, Typography } from "@mui/material";
 import { useThemeContext } from "../../contexts/ThemeContext";
+import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
+import LightModeIcon from "@mui/icons-material/LightMode";
 
 export const ThemeToggler = () => {
   const [checked, setChecked] = useState(false);
   const { currentTheme, toggleTheme } = useThemeContext();
   return (
     <>
-      <Typography>
-        Switch to {currentTheme === "dark" ? "light" : "dark"} theme
-      </Typography>
+      {/* {currentTheme === "dark" ? <DarkModeOutlinedIcon /> : <LightModeIcon />} */}
+      <DarkModeOutlinedIcon />
       <Switch
+        color="default"
         checked={checked}
         onChange={() => {
           setChecked(!checked);
@@ -18,6 +20,7 @@ export const ThemeToggler = () => {
         }}
         inputProps={{ "aria-label": "controlled" }}
       />
+      <LightModeIcon />
     </>
   );
 };

@@ -1,13 +1,17 @@
-import WebSocket from "ws";
+import { Server, Socket } from "socket.io";
 import App from "../src/Sleek";
 import { APIMessage } from "../utils";
 
-const wss = new WebSocket.Server({ port: 8080 });
+const io = new Server({
+  cors: {
+    origin: "http://localhost:3000",
+  },
+});
 
-let ws_store: { ws: WebSocket; uid: string }[] = [];
+let socketStore: { socket: Socket; uid: string }[] = [];
 
 const websocketCallback = async (apiMessage: APIMessage): Promise<void> => {
-  const alert = JSON.stringify({
+  const alert = {
     isBotMessage: apiMessage.isBot,
     roomName: apiMessage.roomName,
     roomID: apiMessage.roomID,
@@ -15,32 +19,34 @@ const websocketCallback = async (apiMessage: APIMessage): Promise<void> => {
     userRecipientID: apiMessage.userRecipientID,
     userSender: apiMessage.userSenderName,
     userSenderID: apiMessage.userSenderID,
-    content: apiMessage.content,
+    data: apiMessage.data,
     commandReturnType: apiMessage.commandReturnType,
     timestamp: apiMessage.timestamp,
-  });
+  };
 
-  ws_store
-    .filter((socket) => socket.uid === apiMessage.userRecipientName)
-    .forEach((socket) => socket.ws.send(alert));
+  socketStore
+    .filter((s) => s.uid === apiMessage.userRecipientName)
+    .forEach((s) => s.socket.emit("alert", alert));
 };
 
 App.setOutputChannel(websocketCallback);
 
-wss.on("connection", (ws: WebSocket) => {
+io.on("connection", (socket: Socket) => {
   console.log("New client connected");
+  console.log(socketStore.length);
 
-  ws.on("message", (msg: string) => {
-    const msgString = msg.toString();
-    console.log(msgString);
-    App.acceptMessage(msgString);
-    const un = msgString.split("@")[0].split(":")[0];
-    if (!ws_store.find((x) => x.uid === un)) {
-      ws_store.push({ ws, uid: un });
+  socket.on("message", (msg: string) => {
+    console.log(msg);
+    App.acceptMessage(msg);
+    const un = msg.split("@")[0].split(":")[0];
+    if (!socketStore.find((x) => x.uid === un)) {
+      socketStore.push({ socket, uid: un });
     }
   });
 
-  ws.on("close", () => {
+  socket.on("disconnect", () => {
     console.log("Client disconnected");
   });
 });
+
+io.listen(8080);

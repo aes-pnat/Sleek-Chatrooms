@@ -6,7 +6,7 @@ export type APIMessage = {
   userRecipientID: string;
   userSenderName: string;
   userSenderID: string;
-  content: string;
+  data: string;
   commandReturnType: string | null;
   timestamp: string;
 };
@@ -20,9 +20,9 @@ export async function messageCallback(apiMessage: APIMessage): Promise<void> {
   await wait(500 * (1 + Math.random()));
   if (apiMessage.isBot) {
     // msg.sender instanceof Bot
-    alert = `[${apiMessage.timestamp}] To "${apiMessage.userRecipientName}" ::: |${apiMessage.userSenderName}| to "${apiMessage.roomName}": ${apiMessage.content}`;
+    alert = `[${apiMessage.timestamp}] To "${apiMessage.userRecipientName}" ::: |${apiMessage.userSenderName}| to "${apiMessage.roomName}": ${apiMessage.data}`;
   } else {
-    alert = `[${apiMessage.timestamp}] To "${apiMessage.userRecipientName}" ::: "${apiMessage.userSenderName}" posted in "${apiMessage.roomName}": "${apiMessage.content}"`;
+    alert = `[${apiMessage.timestamp}] To "${apiMessage.userRecipientName}" ::: "${apiMessage.userSenderName}" posted in "${apiMessage.roomName}": "${apiMessage.data}"`;
   }
   console.log(alert);
 }

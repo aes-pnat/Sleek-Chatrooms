@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { socket } from "../util/socket";
 import { UserType } from "../util/types";
 import {
   Button,
@@ -9,6 +10,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import SendIcon from "@mui/icons-material/Send";
 import { useNavigate } from "react-router-dom";
 
 type MessengerProps = {
@@ -27,6 +29,19 @@ type MessageType = {
   commandReturnType: string | null;
 };
 
+type APIResponse = {
+  isBot: boolean;
+  roomName: string;
+  roomID: string;
+  userRecipientName: string;
+  userRecipientID: string;
+  userSenderName: string;
+  userSenderID: string;
+  data: string;
+  commandReturnType: string | null;
+  timestamp: string;
+};
+
 const styles = {
   centerElement: {
     display: "flex",
@@ -41,13 +56,23 @@ const styles = {
     justifyContent: "center",
     width: "100%",
     height: "100%",
-    minHeight: "100vh",
+    minHeight: "90vh",
+    minWidth: "90vw",
   },
   paper: {
-    width: "90%",
-    height: "90%",
-    padding: "5%",
+    minHeight: "100%",
+    maxHeight: "100%",
+    padding: "10%",
   },
+  messageSender: {
+    fontSize: "0.8rem",
+    padding: "0 0.3rem",
+  },
+  message: {
+    fontSize: "1rem",
+    padding: "0 0 0.5rem 0.5rem",
+  },
+  container: { minHeight: "100%" },
 };
 
 export const Messenger = ({ user, setUser }: MessengerProps) => {
@@ -59,92 +84,137 @@ export const Messenger = ({ user, setUser }: MessengerProps) => {
   const [messageToSend, setMessageToSend] = useState<string>("");
   const navigate = useNavigate();
 
-  /* OPTION TO RECONSIDER: 
-    list commands are pointless, 
-    they are already executed upon render, 
-    but the user should still be able to use them
-  */
-  // const [stateChangeTrigger, setStateChangeTrigger] = useState(false);
-
-  const ws_client = new WebSocket("ws://localhost:8080");
-
   const refreshListings = () => {
-    ws_client.send(
+    socket.emit(
+      "message",
       `${user.username}:${user.password}@${currentRoom} /list rooms`
     );
-    ws_client.send(
+    socket.emit(
+      "message",
       `${user.username}:${user.password}@${currentRoom} /list messages`
     );
-    ws_client.send(
+    socket.emit(
+      "message",
       `${user.username}:${user.password}@${currentRoom} /list users`
     );
   };
 
   const changeRoom = (roomName: string) => {
-    ws_client.send(`${user.username}:${user.password}@${roomName} /list users`);
-    ws_client.send(
+    socket.emit(
+      "message",
+      `${user.username}:${user.password}@${roomName} /list users`
+    );
+    socket.emit(
+      "message",
       `${user.username}:${user.password}@${roomName} /list messages`
     );
+    setCurrentRoom(roomName);
   };
 
   const sendMessage = () => {
-    ws_client.send(
+    console.log(
+      "message",
+      `${user.username}:${user.password}@${currentRoom} ${messageToSend}`
+    );
+    socket.emit(
+      "message",
       `${user.username}:${user.password}@${currentRoom} ${messageToSend}`
     );
     setMessageToSend("");
   };
 
-  ws_client.addEventListener("message", (e) => {
-    const recMsg = JSON.parse(e.data.toString());
+  useEffect(() => {
+    const handleConnect = () => {
+      console.log("Connected to server");
+      socket.emit(
+        "message",
+        `${user.username}:${user.password}@general /list rooms`
+      );
+      socket.emit(
+        "message",
+        `${user.username}:${user.password}@general /list messages`
+      );
+      socket.emit(
+        "message",
+        `${user.username}:${user.password}@general /list users`
+      );
+    };
+    const handleDisconnect = () => {
+      console.log("Disconnected from server");
+    };
+    const handleAlert = (alert: APIResponse) => {
+      switch (alert.commandReturnType) {
+        case "list/rooms":
+          setRoomMap(JSON.parse(alert.data));
+          break;
+        case "list/users":
+          setUserMap(JSON.parse(alert.data));
+          break;
+        case "list/messages":
+          setMessageList(JSON.parse(alert.data));
+          break;
+        case null:
+          setMessageList([
+            ...messageList,
+            {
+              content: alert.data,
+              senderName: alert.userSenderName,
+              senderID: alert.userSenderID,
+              roomName: alert.roomName,
+              roomID: alert.roomID,
+              timestamp: alert.timestamp,
+              isCommand: alert.data.startsWith("/"),
+              commandReturnType: alert.commandReturnType,
+            },
+          ]);
+          break;
+        default:
+          break;
+      }
+    };
 
-    switch (recMsg.commandReturnType) {
-      case "list/rooms":
-        setRoomMap(JSON.parse(recMsg.content));
-        console.log(recMsg.content);
-        break;
-      case "list/users":
-        setUserMap(JSON.parse(recMsg.content));
-        console.log(recMsg.content);
-        break;
-      case "list/message":
-        setMessageList(JSON.parse(recMsg.content));
-        console.log(recMsg.content);
-        break;
-      case null:
-        setMessageList([...messageList, recMsg]);
-        break;
-      default:
-        break;
-    }
-  });
+    socket.on("connect", handleConnect);
+    socket.on("disconnect", handleDisconnect);
+    socket.on("alert", handleAlert);
 
-  ws_client.addEventListener("open", () => {
-    console.log("Connected to server");
-    ws_client.send(`${user.username}:${user.password}@general /list rooms`);
-    ws_client.send(`${user.username}:${user.password}@general /list messages`);
-    ws_client.send(`${user.username}:${user.password}@general /list users`);
-  });
+    socket.connect();
 
-  ws_client.addEventListener("close", () => {
-    console.log("Disconnected from server");
-  });
+    return () => {
+      socket.off("connect", handleConnect);
+      socket.off("disconnect", handleDisconnect);
+      socket.off("alert", handleAlert);
 
-  // useEffect(() => {
-  //   const intervalId = setInterval(refreshListings, 120000);
-  //   return () => {
-  //     clearInterval(intervalId);
-  //   };
-  // }, []);
+      socket.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(refreshListings, 180000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
-    <Container sx={styles.fillAndCenter}>
-      <Grid container spacing={3}>
+    <Container
+      sx={{
+        ...styles.fillAndCenter,
+        minHeight: "90vh",
+        maxHeight: "90vh",
+        minWidth: "90vw",
+        maxWidth: "90vw",
+      }}
+    >
+      <Grid container>
         <Grid item xs={2}>
-          <Grid container spacing={2}>
+          <Grid container sx={styles.container}>
             <Grid item xs={12}>
-              <Paper sx={styles.paper}>
-                <Typography variant="h5">Messenger</Typography>
-                <Button onClick={() => navigate("/register")}>Register</Button>
+              <Paper sx={styles.paper} elevation={3}>
+                <Typography variant="h5">Sleek</Typography>
+                <Button type="button" onClick={() => navigate("/register")}>
+                  Register
+                </Button>
                 <Typography variant="body1">
                   Username: {user.username}
                 </Typography>
@@ -154,10 +224,19 @@ export const Messenger = ({ user, setUser }: MessengerProps) => {
               </Paper>
             </Grid>
             <Grid item xs={12}>
-              <Paper sx={styles.paper}>
+              <Paper
+                sx={{
+                  ...styles.paper,
+                  overflowY: "auto",
+                }}
+                elevation={3}
+              >
                 {Object.keys(roomMap).map((roomID) => (
                   <Typography variant="body1" key={roomID}>
-                    <Button onClick={() => changeRoom(roomMap[roomID])}>
+                    <Button
+                      type="button"
+                      onClick={() => changeRoom(roomMap[roomID])}
+                    >
                       {roomMap[roomID]}
                     </Button>
                   </Typography>
@@ -168,25 +247,57 @@ export const Messenger = ({ user, setUser }: MessengerProps) => {
         </Grid>
 
         <Grid item xs={8}>
-          <Stack>
-            {messageList.map((message: MessageType) => (
-              <Paper>
-                <Typography>{`[${message.timestamp}] ${message.senderName}`}</Typography>
-                <Typography>{message.content}</Typography>
+          <Grid container sx={styles.container}>
+            <Grid item xs={12}>
+              <Paper
+                sx={{
+                  minHeight: "60vh",
+                  maxHeight: "60vh",
+                  overflowY: "auto",
+                }}
+                elevation={3}
+              >
+                <Stack justifyContent="space-between">
+                  {messageList.map((message: MessageType) => (
+                    <Paper
+                      key={`[${message.timestamp}] ${message.senderName} ${message.content}`}
+                      sx={{ padding: "0.2rem 1rem" }}
+                    >
+                      <Typography
+                        sx={styles.messageSender}
+                      >{`[${message.timestamp}] ${message.senderName}`}</Typography>
+                      <Typography sx={styles.message}>
+                        {message.content}
+                      </Typography>
+                    </Paper>
+                  ))}
+                </Stack>
               </Paper>
-            ))}
-          </Stack>
-          <TextField
-            onChange={(e) => {
-              setMessageToSend(e.target.value);
-            }}
-            value={messageToSend}
-          ></TextField>
-          <Button onClick={sendMessage}>→</Button>
+            </Grid>
+            <Grid item xs={10}>
+              <TextField
+                onChange={(e) => {
+                  setMessageToSend(e.target.value);
+                }}
+                value={messageToSend}
+                sx={{ width: "100%" }}
+              />
+            </Grid>
+            <Grid item xs={2}>
+              <Button
+                type="button"
+                variant="contained"
+                onClick={sendMessage}
+                sx={{ width: "100%", height: "100%" }}
+              >
+                <SendIcon />
+              </Button>
+            </Grid>
+          </Grid>
         </Grid>
 
         <Grid item xs={2}>
-          <Paper sx={styles.paper}>
+          <Paper sx={styles.paper} elevation={3}>
             {Object.keys(userMap).map((userID) => (
               <Typography variant="body1" key={userID}>
                 {userMap[userID]}

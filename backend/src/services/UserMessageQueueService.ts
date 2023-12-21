@@ -14,7 +14,7 @@ const defaultCallback = (apiMessage: APIMessage): Promise<undefined> => {
       apiMessage.userRecipientID,
       apiMessage.userSenderName,
       apiMessage.userSenderID,
-      apiMessage.content,
+      apiMessage.data,
       apiMessage.commandReturnType,
       apiMessage.timestamp
     );
@@ -60,13 +60,12 @@ class UserMessageQueueService {
     }
     if (!this.queue[room!.uuid][userRecipient.uuid]) {
       this.queue[room!.uuid][userRecipient.uuid] = { q: [], cs: false };
-      //critical_section = false;
     }
 
     console.log(
       `   Enqueueing message for ${userRecipient.name}: ${msg.content} `
     );
-    const apiMessage = {
+    const apiMessage: APIMessage = {
       isBot: userSender.isBot,
       roomName: room!.name,
       roomID: room!.uuid,
@@ -74,7 +73,7 @@ class UserMessageQueueService {
       userRecipientID: userRecipient.uuid,
       userSenderName: userSender.name,
       userSenderID: userSender.uuid,
-      content: msg.content,
+      data: msg.content,
       commandReturnType: msg.commandReturnType,
       timestamp: getTimestamp(msg.datetime!),
     };

@@ -6,6 +6,7 @@ import SecurityService from "./SecurityService";
 import { getTimestamp } from "../../utils";
 
 type ReturnCommand = { msg: Message; targetUsers: string[]; storeMsg: boolean };
+
 class CommandExecutionerService {
   public executeCommand(msg: Message): ReturnCommand | undefined {
     let command = msg.content.split(" ")[0];

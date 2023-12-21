@@ -4,7 +4,7 @@ import { Messenger } from "./Messenger";
 import { UserType } from "../util/types";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ThemeToggler } from "./common/ThemeToggler";
-import { Box } from "@mui/material";
+import { Box, AppBar, Toolbar, Typography } from "@mui/material";
 
 export const Main = () => {
   const [user, setUser] = useState<UserType>({
@@ -13,30 +13,45 @@ export const Main = () => {
   });
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        minWidth: "100vw",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-      }}
-    >
-      <ThemeToggler />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/register" replace />} />
-          <Route
-            path="/register"
-            element={<Register user={user} setUser={setUser} />}
-          />
-          <Route
-            path="/messenger"
-            element={<Messenger user={user} setUser={setUser} />}
-          />
-        </Routes>
-      </BrowserRouter>
-    </Box>
+    <>
+      <AppBar position="static">
+        <Toolbar>
+          <ThemeToggler />
+          {/* <Typography variant="h5" align="center">
+            Sleek
+          </Typography>
+          <Typography variant="body1" align="right">
+            Username: {user.username}
+          </Typography>
+          <Typography variant="body1" align="right">
+            Password: {user.password}
+          </Typography> */}
+        </Toolbar>
+      </AppBar>
+      <Box
+        sx={{
+          minHeight: "90vh",
+          minWidth: "90vw",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Navigate to="/register" replace />} />
+            <Route
+              path="/register"
+              element={<Register user={user} setUser={setUser} />}
+            />
+            <Route
+              path="/messenger"
+              element={<Messenger user={user} setUser={setUser} />}
+            />
+          </Routes>
+        </BrowserRouter>
+      </Box>
+    </>
   );
 };

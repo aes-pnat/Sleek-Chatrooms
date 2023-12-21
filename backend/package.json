@@ -31,6 +31,7 @@
     "ws": "^8.15.1"
   },
   "dependencies": {
+    "socket.io": "^4.7.2",
     "ts-node": "^10.9.2"
   }
 }
