@@ -36,7 +36,6 @@ export const Register = ({ user, setUser }: RegisterProps) => {
   const navigate = useNavigate();
 
   const handleSubmit = () => {
-    console.log(formData);
     setUser(formData);
     setFormData({ username: "", password: "" });
     navigate("/messenger", { replace: true });

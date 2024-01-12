@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { socket } from "../util/socket";
-import { UserType } from "../util/types";
+import { UserType, MessageType, APIResponse } from "../util/types";
 import {
   Button,
   Container,
@@ -16,30 +16,6 @@ import { useNavigate } from "react-router-dom";
 type MessengerProps = {
   user: UserType;
   setUser: React.Dispatch<React.SetStateAction<UserType>>;
-};
-
-type MessageType = {
-  content: string;
-  senderName: string;
-  senderID: string;
-  roomName: string;
-  roomID: string;
-  timestamp: string;
-  isCommand: boolean;
-  commandReturnType: string | null;
-};
-
-type APIResponse = {
-  isBot: boolean;
-  roomName: string;
-  roomID: string;
-  userRecipientName: string;
-  userRecipientID: string;
-  userSenderName: string;
-  userSenderID: string;
-  data: string;
-  commandReturnType: string | null;
-  timestamp: string;
 };
 
 const styles = {
@@ -84,6 +60,16 @@ export const Messenger = ({ user, setUser }: MessengerProps) => {
   const [messageToSend, setMessageToSend] = useState<string>("");
   const navigate = useNavigate();
 
+  const chatBottomRef: React.RefObject<HTMLDivElement> =
+    useRef<HTMLDivElement>(null);
+
+  const scrollToElement = () => {
+    const { current } = chatBottomRef;
+    if (current !== null) {
+      current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   const refreshListings = () => {
     socket.emit(
       "message",
@@ -112,10 +98,6 @@ export const Messenger = ({ user, setUser }: MessengerProps) => {
   };
 
   const sendMessage = () => {
-    console.log(
-      "message",
-      `${user.username}:${user.password}@${currentRoom} ${messageToSend}`
-    );
     socket.emit(
       "message",
       `${user.username}:${user.password}@${currentRoom} ${messageToSend}`
@@ -152,21 +134,28 @@ export const Messenger = ({ user, setUser }: MessengerProps) => {
           break;
         case "list/messages":
           setMessageList(JSON.parse(alert.data));
+          //console.log(421, alert.data);
+          scrollToElement();
           break;
         case null:
-          setMessageList([
-            ...messageList,
-            {
-              content: alert.data,
-              senderName: alert.userSenderName,
-              senderID: alert.userSenderID,
-              roomName: alert.roomName,
-              roomID: alert.roomID,
-              timestamp: alert.timestamp,
-              isCommand: alert.data.startsWith("/"),
-              commandReturnType: alert.commandReturnType,
-            },
-          ]);
+          // setMessageList([
+          //   ...messageList,
+          //   {
+          //     content: alert.data,
+          //     senderName: alert.userSenderName,
+          //     senderID: alert.userSenderID,
+          //     roomName: alert.roomName,
+          //     roomID: alert.roomID,
+          //     timestamp: alert.timestamp,
+          //     isCommand: alert.data.startsWith("/"),
+          //     commandReturnType: alert.commandReturnType,
+          //   },
+          // ]);
+          socket.emit(
+            "message",
+            `${user.username}:${user.password}@${currentRoom} /list messages`
+          );
+          console.log(messageList);
           break;
         default:
           break;
@@ -189,6 +178,7 @@ export const Messenger = ({ user, setUser }: MessengerProps) => {
   }, []);
 
   useEffect(() => {
+    scrollToElement();
     const interval = setInterval(refreshListings, 180000);
 
     return () => {
@@ -271,6 +261,12 @@ export const Messenger = ({ user, setUser }: MessengerProps) => {
                       </Typography>
                     </Paper>
                   ))}
+                  <Paper
+                    key="scrollToBottom"
+                    component="div"
+                    //sx={{ float: "left", clear: "both" }}
+                    ref={chatBottomRef}
+                  />
                 </Stack>
               </Paper>
             </Grid>
