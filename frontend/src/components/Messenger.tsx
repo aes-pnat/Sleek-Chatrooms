@@ -4,6 +4,7 @@ import { UserType, MessageType, APIResponse } from "../util/types";
 import {
   Button,
   Container,
+  Divider,
   Grid,
   Paper,
   Stack,
@@ -12,50 +13,28 @@ import {
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { useNavigate } from "react-router-dom";
+import { MessengerStyles as styles } from "../util/styles";
 
 type MessengerProps = {
   user: UserType;
   setUser: React.Dispatch<React.SetStateAction<UserType>>;
 };
 
-const styles = {
-  centerElement: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  fillAndCenter: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
-    height: "100%",
-    minHeight: "90vh",
-    minWidth: "90vw",
-  },
-  paper: {
-    minHeight: "100%",
-    maxHeight: "100%",
-    padding: "10%",
-  },
-  messageSender: {
-    fontSize: "0.8rem",
-    padding: "0 0.3rem",
-  },
-  message: {
-    fontSize: "1rem",
-    padding: "0 0 0.5rem 0.5rem",
-  },
-  container: { minHeight: "100%" },
+const createTitleItem = (title: string) => {
+  return (
+    <Divider textAlign="center" sx={{ padding: "0 0 1rem 0 " }}>
+      <Typography variant="h5" sx={{ fontFamily: "monospace" }}>
+        {title}
+      </Typography>
+    </Divider>
+  );
 };
-
 export const Messenger = ({ user, setUser }: MessengerProps) => {
   const [currentRoom, setCurrentRoom] = useState<string>("general");
   const [roomMap, setRoomMap] = useState<Record<string, string>>({});
   const [userMap, setUserMap] = useState<Record<string, string>>({});
   const [messageList, setMessageList] = useState<MessageType[]>([]);
+  const [filled, setFilled] = useState<boolean>(false);
 
   const [messageToSend, setMessageToSend] = useState<string>("");
   const navigate = useNavigate();
@@ -66,7 +45,11 @@ export const Messenger = ({ user, setUser }: MessengerProps) => {
   const scrollToElement = () => {
     const { current } = chatBottomRef;
     if (current !== null) {
-      current.scrollIntoView({ behavior: "smooth" });
+      current.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+        inline: "nearest",
+      });
     }
   };
 
@@ -94,6 +77,10 @@ export const Messenger = ({ user, setUser }: MessengerProps) => {
       "message",
       `${user.username}:${user.password}@${roomName} /list messages`
     );
+    socket.emit(
+      "message",
+      `${user.username}:${user.password}@${roomName} /list rooms`
+    );
     setCurrentRoom(roomName);
   };
 
@@ -103,6 +90,21 @@ export const Messenger = ({ user, setUser }: MessengerProps) => {
       `${user.username}:${user.password}@${currentRoom} ${messageToSend}`
     );
     setMessageToSend("");
+
+    socket.emit(
+      "message",
+      `${user.username}:${user.password}@${currentRoom} /list rooms`
+    );
+  };
+
+  const sendFill = () => {
+    socket.emit("fill");
+  };
+
+  const handleKeypress = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter") {
+      sendMessage();
+    }
   };
 
   useEffect(() => {
@@ -134,7 +136,6 @@ export const Messenger = ({ user, setUser }: MessengerProps) => {
           break;
         case "list/messages":
           setMessageList(JSON.parse(alert.data));
-          //console.log(421, alert.data);
           scrollToElement();
           break;
         case null:
@@ -192,40 +193,77 @@ export const Messenger = ({ user, setUser }: MessengerProps) => {
         ...styles.fillAndCenter,
         minHeight: "90vh",
         maxHeight: "90vh",
-        minWidth: "90vw",
-        maxWidth: "90vw",
+        minWidth: "100vw",
+        maxWidth: "100vw",
       }}
     >
       <Grid container>
         <Grid item xs={2}>
-          <Grid container sx={styles.container}>
-            <Grid item xs={12}>
+          <Grid
+            container
+            sx={styles.container}
+            direction="column"
+            justifyContent="flex-start"
+            alignItems="stretch"
+          >
+            <Grid
+              item
+              xs={4}
+              sx={{ ...styles.gridSubItem, maxHeight: "50%" }}
+              id="profileItem"
+            >
               <Paper sx={styles.paper} elevation={3}>
-                <Typography variant="h5">Sleek</Typography>
-                <Button type="button" onClick={() => navigate("/register")}>
-                  Register
-                </Button>
+                {createTitleItem("Profile")}
+
                 <Typography variant="body1">
                   Username: {user.username}
                 </Typography>
                 <Typography variant="body1">
                   Password: {user.password}
                 </Typography>
+
+                <Divider sx={{ margin: "0.5rem 0" }} />
+                <Button type="button" onClick={() => navigate("/register")}>
+                  Register
+                </Button>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    sendFill();
+                    setFilled(true);
+                  }}
+                  disabled={filled}
+                >
+                  Fill rooms
+                </Button>
               </Paper>
             </Grid>
-            <Grid item xs={12}>
+            <Grid
+              item
+              xs={8}
+              sx={{ ...styles.gridSubItem, height: "100%", minHeight: "100%" }}
+              id="roomsItem"
+            >
               <Paper
                 sx={{
                   ...styles.paper,
                   overflowY: "auto",
+                  minHeight: "100%",
                 }}
                 elevation={3}
               >
+                {createTitleItem("Rooms")}
                 {Object.keys(roomMap).map((roomID) => (
                   <Typography variant="body1" key={roomID}>
                     <Button
                       type="button"
+                      variant={
+                        currentRoom === roomMap[roomID]
+                          ? "contained"
+                          : "outlined"
+                      }
                       onClick={() => changeRoom(roomMap[roomID])}
+                      sx={{ width: "100%", margin: "0.5rem 0 0 0 " }}
                     >
                       {roomMap[roomID]}
                     </Button>
@@ -238,7 +276,7 @@ export const Messenger = ({ user, setUser }: MessengerProps) => {
 
         <Grid item xs={8}>
           <Grid container sx={styles.container}>
-            <Grid item xs={12}>
+            <Grid item xs={12} sx={styles.gridSubItem} id="messagesItem">
               <Paper
                 sx={{
                   minHeight: "60vh",
@@ -264,36 +302,47 @@ export const Messenger = ({ user, setUser }: MessengerProps) => {
                   <Paper
                     key="scrollToBottom"
                     component="div"
-                    //sx={{ float: "left", clear: "both" }}
+                    sx={{ float: "left", clear: "both" }}
                     ref={chatBottomRef}
                   />
                 </Stack>
               </Paper>
             </Grid>
-            <Grid item xs={10}>
-              <TextField
-                onChange={(e) => {
-                  setMessageToSend(e.target.value);
-                }}
-                value={messageToSend}
-                sx={{ width: "100%" }}
-              />
-            </Grid>
-            <Grid item xs={2}>
-              <Button
-                type="button"
-                variant="contained"
-                onClick={sendMessage}
-                sx={{ width: "100%", height: "100%" }}
-              >
-                <SendIcon />
-              </Button>
+            <Grid item xs={12} sx={styles.gridSubItem} id="messageSendItem">
+              <Grid container>
+                <Grid item xs={11}>
+                  <TextField
+                    id="message"
+                    label="Message"
+                    onChange={(e) => {
+                      setMessageToSend(e.target.value);
+                    }}
+                    onKeyDown={handleKeypress}
+                    value={messageToSend}
+                    sx={{
+                      width: "100%",
+                      padding: "0 2% 0 0",
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={1}>
+                  <Button
+                    type="button"
+                    variant="contained"
+                    onClick={sendMessage}
+                    sx={{ width: "100%", height: "100%" }}
+                  >
+                    <SendIcon />
+                  </Button>
+                </Grid>
+              </Grid>
             </Grid>
           </Grid>
         </Grid>
 
-        <Grid item xs={2}>
-          <Paper sx={styles.paper} elevation={3}>
+        <Grid item xs={2} sx={styles.gridSubItem}>
+          <Paper sx={{ ...styles.paper, overflowY: "auto" }} elevation={3}>
+            {createTitleItem("Users")}
             {Object.keys(userMap).map((userID) => (
               <Typography variant="body1" key={userID}>
                 {userMap[userID]}
