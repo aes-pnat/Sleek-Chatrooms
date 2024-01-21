@@ -10,11 +10,6 @@ import {
 import { UserType } from "../util/types";
 import { useNavigate } from "react-router-dom";
 
-type RegisterProps = {
-  user: UserType;
-  setUser: React.Dispatch<React.SetStateAction<UserType>>;
-};
-
 const styles = {
   centerElement: {
     display: "flex",
@@ -27,7 +22,7 @@ const styles = {
   },
 };
 
-export const Register = ({ user, setUser }: RegisterProps) => {
+export const Register = () => {
   const [formData, setFormData] = useState<UserType>({
     username: "",
     password: "",
@@ -36,7 +31,7 @@ export const Register = ({ user, setUser }: RegisterProps) => {
   const navigate = useNavigate();
 
   const handleSubmit = () => {
-    setUser(formData);
+    localStorage.setItem("user", JSON.stringify(formData));
     setFormData({ username: "", password: "" });
     navigate("/messenger", { replace: true });
   };
@@ -53,13 +48,14 @@ export const Register = ({ user, setUser }: RegisterProps) => {
           <Grid container spacing={1}>
             <Grid item xs={12} sx={{ ...styles.centerElement, padding: "2%" }}>
               <Typography variant="h4" sx={{ fontFamily: "monospace" }}>
-                Sleek
+                Register
               </Typography>
             </Grid>
             <Grid item xs={12} sx={{ padding: "2%" }}>
               <TextField
                 id="username"
                 label="Username"
+                type="text"
                 variant="outlined"
                 value={formData.username}
                 onChange={(e) => {
@@ -72,6 +68,7 @@ export const Register = ({ user, setUser }: RegisterProps) => {
               <TextField
                 id="password"
                 label="Password"
+                type="password"
                 variant="outlined"
                 value={formData.password}
                 onChange={(e) => {

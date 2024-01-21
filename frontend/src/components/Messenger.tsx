@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { socket } from "../util/socket";
 import { UserType, MessageType, APIResponse } from "../util/types";
 import {
+  Box,
   Button,
   Container,
   Divider,
@@ -12,32 +13,34 @@ import {
   Typography,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import { useNavigate } from "react-router-dom";
 import { MessengerStyles as styles } from "../util/styles";
-
-type MessengerProps = {
-  user: UserType;
-  setUser: React.Dispatch<React.SetStateAction<UserType>>;
-};
+import { useSocket } from "../util/socketHook";
 
 const createTitleItem = (title: string) => {
   return (
-    <Divider textAlign="center" sx={{ padding: "0 0 1rem 0 " }}>
+    <Divider
+      textAlign="center"
+      sx={{ padding: "0 0 1rem 0 ", borderBottomWidth: "45px" }}
+    >
       <Typography variant="h5" sx={{ fontFamily: "monospace" }}>
         {title}
       </Typography>
     </Divider>
   );
 };
-export const Messenger = ({ user, setUser }: MessengerProps) => {
-  const [currentRoom, setCurrentRoom] = useState<string>("general");
-  const [roomMap, setRoomMap] = useState<Record<string, string>>({});
-  const [userMap, setUserMap] = useState<Record<string, string>>({});
-  const [messageList, setMessageList] = useState<MessageType[]>([]);
-  const [filled, setFilled] = useState<boolean>(false);
-
+export const Messenger = () => {
   const [messageToSend, setMessageToSend] = useState<string>("");
-  const navigate = useNavigate();
+  const [
+    connected,
+    user,
+    currentRoom,
+    roomMap,
+    userMap,
+    messageList,
+    sendMessage,
+    changeRoom,
+    loadData,
+  ] = useSocket();
 
   const chatBottomRef: React.RefObject<HTMLDivElement> =
     useRef<HTMLDivElement>(null);
@@ -53,134 +56,24 @@ export const Messenger = ({ user, setUser }: MessengerProps) => {
     }
   };
 
-  const refreshListings = () => {
-    socket.emit(
-      "message",
-      `${user.username}:${user.password}@${currentRoom} /list rooms`
-    );
-    socket.emit(
-      "message",
-      `${user.username}:${user.password}@${currentRoom} /list messages`
-    );
-    socket.emit(
-      "message",
-      `${user.username}:${user.password}@${currentRoom} /list users`
-    );
-  };
-
-  const changeRoom = (roomName: string) => {
-    socket.emit(
-      "message",
-      `${user.username}:${user.password}@${roomName} /list users`
-    );
-    socket.emit(
-      "message",
-      `${user.username}:${user.password}@${roomName} /list messages`
-    );
-    socket.emit(
-      "message",
-      `${user.username}:${user.password}@${roomName} /list rooms`
-    );
-    setCurrentRoom(roomName);
-  };
-
-  const sendMessage = () => {
-    socket.emit(
-      "message",
-      `${user.username}:${user.password}@${currentRoom} ${messageToSend}`
-    );
-    setMessageToSend("");
-
-    socket.emit(
-      "message",
-      `${user.username}:${user.password}@${currentRoom} /list rooms`
-    );
-  };
-
-  const sendFill = () => {
-    socket.emit("fill");
+  const handleChangeRoom = (roomName: string) => {
+    changeRoom(roomName);
+    scrollToElement();
   };
 
   const handleKeypress = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter") {
-      sendMessage();
+      sendMessage(messageToSend);
+      setMessageToSend("");
     }
   };
 
   useEffect(() => {
-    const handleConnect = () => {
-      console.log("Connected to server");
-      socket.emit(
-        "message",
-        `${user.username}:${user.password}@general /list rooms`
-      );
-      socket.emit(
-        "message",
-        `${user.username}:${user.password}@general /list messages`
-      );
-      socket.emit(
-        "message",
-        `${user.username}:${user.password}@general /list users`
-      );
-    };
-    const handleDisconnect = () => {
-      console.log("Disconnected from server");
-    };
-    const handleAlert = (alert: APIResponse) => {
-      switch (alert.commandReturnType) {
-        case "list/rooms":
-          setRoomMap(JSON.parse(alert.data));
-          break;
-        case "list/users":
-          setUserMap(JSON.parse(alert.data));
-          break;
-        case "list/messages":
-          setMessageList(JSON.parse(alert.data));
-          scrollToElement();
-          break;
-        case null:
-          // setMessageList([
-          //   ...messageList,
-          //   {
-          //     content: alert.data,
-          //     senderName: alert.userSenderName,
-          //     senderID: alert.userSenderID,
-          //     roomName: alert.roomName,
-          //     roomID: alert.roomID,
-          //     timestamp: alert.timestamp,
-          //     isCommand: alert.data.startsWith("/"),
-          //     commandReturnType: alert.commandReturnType,
-          //   },
-          // ]);
-          socket.emit(
-            "message",
-            `${user.username}:${user.password}@${currentRoom} /list messages`
-          );
-          console.log(messageList);
-          break;
-        default:
-          break;
-      }
-    };
-
-    socket.on("connect", handleConnect);
-    socket.on("disconnect", handleDisconnect);
-    socket.on("alert", handleAlert);
-
-    socket.connect();
-
-    return () => {
-      socket.off("connect", handleConnect);
-      socket.off("disconnect", handleDisconnect);
-      socket.off("alert", handleAlert);
-
-      socket.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
+    if (!connected) {
+      return;
+    }
     scrollToElement();
-    const interval = setInterval(refreshListings, 180000);
+    const interval = setInterval(loadData, 180000);
 
     return () => {
       clearInterval(interval);
@@ -206,69 +99,72 @@ export const Messenger = ({ user, setUser }: MessengerProps) => {
             justifyContent="flex-start"
             alignItems="stretch"
           >
+            {true && (
+              <Grid
+                item
+                xs={4}
+                sx={{ ...styles.gridSubItem, maxHeight: "50%" }}
+                id="profileItem"
+              >
+                <Paper sx={styles.paper} elevation={3}>
+                  {createTitleItem("Profile")}
+
+                  <Typography variant="body1">
+                    Username: {user.username}
+                  </Typography>
+                  {/* <Typography variant="body1">
+                    Password: {user.password}
+                  </Typography> */}
+                </Paper>
+              </Grid>
+            )}
             <Grid
               item
-              xs={4}
-              sx={{ ...styles.gridSubItem, maxHeight: "50%" }}
-              id="profileItem"
-            >
-              <Paper sx={styles.paper} elevation={3}>
-                {createTitleItem("Profile")}
-
-                <Typography variant="body1">
-                  Username: {user.username}
-                </Typography>
-                <Typography variant="body1">
-                  Password: {user.password}
-                </Typography>
-
-                <Divider sx={{ margin: "0.5rem 0" }} />
-                <Button type="button" onClick={() => navigate("/register")}>
-                  Register
-                </Button>
-                <Button
-                  type="button"
-                  onClick={() => {
-                    sendFill();
-                    setFilled(true);
-                  }}
-                  disabled={filled}
-                >
-                  Fill rooms
-                </Button>
-              </Paper>
-            </Grid>
-            <Grid
-              item
-              xs={8}
-              sx={{ ...styles.gridSubItem, height: "100%", minHeight: "100%" }}
+              xs={isDevelopmentEnv ? 8 : 12}
+              sx={{
+                ...styles.gridSubItem,
+                minHeight: "100%",
+                maxHeight: "50vh",
+              }}
               id="roomsItem"
             >
               <Paper
                 sx={{
                   ...styles.paper,
-                  overflowY: "auto",
-                  minHeight: "100%",
+                  minHeight: "47vh",
+                  maxHeight: "47vh",
                 }}
                 elevation={3}
               >
                 {createTitleItem("Rooms")}
-                {Object.keys(roomMap).map((roomID) => (
-                  <Typography variant="body1" key={roomID}>
-                    <Button
-                      type="button"
-                      variant={
-                        currentRoom === roomMap[roomID]
-                          ? "contained"
-                          : "outlined"
-                      }
-                      onClick={() => changeRoom(roomMap[roomID])}
-                      sx={{ width: "100%", margin: "0.5rem 0 0 0 " }}
+                <Box
+                  sx={{
+                    overflowY: "auto",
+                    minHeight: "35vh",
+                    maxHeight: "35vh",
+                  }}
+                >
+                  {Object.keys(roomMap).map((roomID) => (
+                    <Typography
+                      variant="body1"
+                      key={roomID}
+                      sx={{ margin: "0 0.2rem 0 0" }}
                     >
-                      {roomMap[roomID]}
-                    </Button>
-                  </Typography>
-                ))}
+                      <Button
+                        type="button"
+                        variant={
+                          currentRoom === roomMap[roomID]
+                            ? "contained"
+                            : "outlined"
+                        }
+                        onClick={() => changeRoom(roomMap[roomID])}
+                        sx={{ width: "100%", margin: "0.5rem 0 0 0 " }}
+                      >
+                        {roomMap[roomID]}
+                      </Button>
+                    </Typography>
+                  ))}
+                </Box>
               </Paper>
             </Grid>
           </Grid>

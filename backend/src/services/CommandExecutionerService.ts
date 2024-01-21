@@ -5,7 +5,12 @@ import SecurityDataStore from "../SecurityDataStore";
 import SecurityService from "./SecurityService";
 import { getTimestamp } from "../../utils";
 
-type ReturnCommand = { msg: Message; targetUsers: string[]; storeMsg: boolean };
+type ReturnCommand = {
+  msg: Message;
+  targetUsers: string[];
+  storeMsg: boolean;
+  respondingToUUID: string;
+};
 
 class CommandExecutionerService {
   public executeCommand(msg: Message): ReturnCommand | undefined {
@@ -28,14 +33,14 @@ class CommandExecutionerService {
                 `Argument "name" required for command "create room"`,
                 server.uuid,
                 room.uuid,
-                new Date(),
-                "error"
+                new Date()
               );
 
               cmdReturn = {
                 msg: cmdResponse,
                 targetUsers: [sender.uuid],
                 storeMsg: false,
+                respondingToUUID: msg.uuid,
               };
               return cmdReturn;
             }
@@ -44,14 +49,14 @@ class CommandExecutionerService {
                 `Argument "public" required for command "create room" for unregistered users`,
                 server.uuid,
                 room.uuid,
-                new Date(),
-                "error"
+                new Date()
               );
 
               cmdReturn = {
                 msg: cmdResponse,
                 targetUsers: [sender.uuid],
                 storeMsg: false,
+                respondingToUUID: msg.uuid,
               };
               return cmdReturn;
             }
@@ -63,13 +68,13 @@ class CommandExecutionerService {
               }"`,
               server.uuid,
               room.uuid,
-              new Date(),
-              "create/room"
+              new Date()
             );
             cmdReturn = {
               msg: cmdResponse,
               targetUsers: room.users,
               storeMsg: true,
+              respondingToUUID: msg.uuid,
             };
 
             return cmdReturn;
@@ -80,14 +85,14 @@ class CommandExecutionerService {
                 `Argument "name" required for command "create user"`,
                 server.uuid,
                 room.uuid,
-                new Date(),
-                "error"
+                new Date()
               );
 
               cmdReturn = {
                 msg: cmdResponse,
                 targetUsers: [sender.uuid],
                 storeMsg: false,
+                respondingToUUID: msg.uuid,
               };
               return cmdReturn;
             } else if (args[1] === "SERVER" || args[1] === "ANONYMOUS") {
@@ -103,6 +108,7 @@ class CommandExecutionerService {
                 msg: cmdResponse,
                 targetUsers: [sender.uuid],
                 storeMsg: false,
+                respondingToUUID: msg.uuid,
               };
               return cmdReturn;
             } else if (!args[2]) {
@@ -110,14 +116,14 @@ class CommandExecutionerService {
                 `Argument "password" required for command "create user"`,
                 server.uuid,
                 room.uuid,
-                new Date(),
-                "error"
+                new Date()
               );
 
               cmdReturn = {
                 msg: cmdResponse,
                 targetUsers: [sender.uuid],
                 storeMsg: false,
+                respondingToUUID: msg.uuid,
               };
               return cmdReturn;
             }
@@ -132,14 +138,14 @@ class CommandExecutionerService {
                 `User "${args[1]}" already registered`,
                 server.uuid,
                 room.uuid,
-                new Date(),
-                "error"
+                new Date()
               );
 
               cmdReturn = {
                 msg: cmdResponse,
                 targetUsers: [sender.uuid],
                 storeMsg: false,
+                respondingToUUID: msg.uuid,
               };
               return cmdReturn;
             }
@@ -149,14 +155,14 @@ class CommandExecutionerService {
               `User ${sender.name} created user "${args[1]}"`,
               server.uuid,
               room.uuid,
-              new Date(),
-              "create/user"
+              new Date()
             );
 
             cmdReturn = {
               msg: cmdResponse,
               targetUsers: room.users,
               storeMsg: true,
+              respondingToUUID: msg.uuid,
             };
 
             return cmdReturn;
@@ -166,14 +172,14 @@ class CommandExecutionerService {
               `Argument "${args[0]}" invalid for command "create"`,
               server.uuid,
               room.uuid,
-              new Date(),
-              "error"
+              new Date()
             );
 
             cmdReturn = {
               msg: cmdResponse,
               targetUsers: [sender.uuid],
               storeMsg: false,
+              respondingToUUID: msg.uuid,
             };
             return cmdReturn;
         }
@@ -192,14 +198,14 @@ class CommandExecutionerService {
                 .concat("}"),
               server.uuid,
               room.uuid,
-              new Date(),
-              "list/rooms"
+              new Date()
             );
 
             cmdReturn = {
               msg: cmdResponse,
               targetUsers: [sender.uuid],
               storeMsg: false,
+              respondingToUUID: msg.uuid,
             };
 
             return cmdReturn;
@@ -224,14 +230,14 @@ class CommandExecutionerService {
                 .concat("}"),
               server.uuid,
               room.uuid,
-              new Date(),
-              "list/users"
+              new Date()
             );
 
             cmdReturn = {
               msg: cmdResponse,
               targetUsers: [sender.uuid],
               storeMsg: false,
+              respondingToUUID: msg.uuid,
             };
 
             return cmdReturn;
@@ -251,7 +257,7 @@ class CommandExecutionerService {
                       roomID: roomMsg.roomID,
                       timestamp: getTimestamp(roomMsg.datetime),
                       isCommand: roomMsg.isCommand,
-                      commandReturnType: roomMsg.commandReturnType,
+                      uuid: roomMsg.uuid,
                     })
                   )
                   .join(",")
@@ -259,14 +265,14 @@ class CommandExecutionerService {
               ),
               server.uuid,
               room.uuid,
-              new Date(),
-              "list/messages"
+              new Date()
             );
 
             cmdReturn = {
               msg: cmdResponse,
               targetUsers: [sender.uuid],
               storeMsg: false,
+              respondingToUUID: msg.uuid,
             };
 
             return cmdReturn;
@@ -276,14 +282,14 @@ class CommandExecutionerService {
               `Argument "${args[0]}" invalid for command "list"`,
               server.uuid,
               room.uuid,
-              new Date(),
-              "error"
+              new Date()
             );
 
             cmdReturn = {
               msg: cmdResponse,
               targetUsers: [sender.uuid],
               storeMsg: false,
+              respondingToUUID: msg.uuid,
             };
             return cmdReturn;
         }
@@ -297,14 +303,14 @@ class CommandExecutionerService {
                 `Argument "roomName" required for command "rename room"`,
                 server.uuid,
                 room.uuid,
-                new Date(),
-                "error"
+                new Date()
               );
 
               cmdReturn = {
                 msg: cmdResponse,
                 targetUsers: [sender.uuid],
                 storeMsg: false,
+                respondingToUUID: msg.uuid,
               };
               return cmdReturn;
             } else if (RoomsDataStore.getRoomByName(args[1])) {
@@ -312,14 +318,14 @@ class CommandExecutionerService {
                 `Room with name "${args[2]}" already exists`,
                 server.uuid,
                 room.uuid,
-                new Date(),
-                "error"
+                new Date()
               );
 
               cmdReturn = {
                 msg: cmdResponse,
                 targetUsers: [sender.uuid],
                 storeMsg: false,
+                respondingToUUID: msg.uuid,
               };
               return cmdReturn;
             }
@@ -328,14 +334,14 @@ class CommandExecutionerService {
               `User ${sender.name} renamed room to "${args[1]}"`,
               server.uuid,
               room.uuid,
-              new Date(),
-              "rename/room"
+              new Date()
             );
 
             cmdReturn = {
               msg: cmdResponse,
               targetUsers: room.users,
               storeMsg: true,
+              respondingToUUID: msg.uuid,
             };
 
             return cmdReturn;
@@ -346,14 +352,14 @@ class CommandExecutionerService {
                 `Argument "name" required for command "rename self"`,
                 server.uuid,
                 room.uuid,
-                new Date(),
-                "error"
+                new Date()
               );
 
               cmdReturn = {
                 msg: cmdResponse,
                 targetUsers: [sender.uuid],
                 storeMsg: false,
+                respondingToUUID: msg.uuid,
               };
               return cmdReturn;
             } else if (UsersDataStore.getUserByName(args[1])) {
@@ -361,14 +367,14 @@ class CommandExecutionerService {
                 `User with name "${args[1]}" already exists`,
                 server.uuid,
                 room.uuid,
-                new Date(),
-                "error"
+                new Date()
               );
 
               cmdReturn = {
                 msg: cmdResponse,
                 targetUsers: [sender.uuid],
                 storeMsg: false,
+                respondingToUUID: msg.uuid,
               };
               return cmdReturn;
             }
@@ -377,14 +383,14 @@ class CommandExecutionerService {
               `User ${sender.name} renamed themselves to "${args[1]}"`,
               server.uuid,
               room.uuid,
-              new Date(),
-              "rename/self"
+              new Date()
             );
 
             cmdReturn = {
               msg: cmdResponse,
               targetUsers: room.users,
               storeMsg: true,
+              respondingToUUID: msg.uuid,
             };
 
             return cmdReturn;
@@ -394,14 +400,14 @@ class CommandExecutionerService {
               `Argument "${args[0]}" invalid for command "rename"`,
               server.uuid,
               room.uuid,
-              new Date(),
-              "error"
+              new Date()
             );
 
             cmdReturn = {
               msg: cmdResponse,
               targetUsers: [sender.uuid],
               storeMsg: false,
+              respondingToUUID: msg.uuid,
             };
             return cmdReturn;
         }
@@ -412,14 +418,14 @@ class CommandExecutionerService {
           `Command "${command}" invalid`,
           server.uuid,
           room.uuid,
-          new Date(),
-          "error"
+          new Date()
         );
 
         cmdReturn = {
           msg: cmdResponse,
           targetUsers: [sender.uuid],
           storeMsg: false,
+          respondingToUUID: msg.uuid,
         };
         return cmdReturn;
     }

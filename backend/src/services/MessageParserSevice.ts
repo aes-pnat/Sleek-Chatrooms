@@ -9,12 +9,15 @@ const v4 = new RegExp(
 );
 export class MessageParserService {
   public parseMessage(message: string) {
-    // [USERNAME[:AUTH]]@ID /COMMAND [ARG [ARG [ARG [...]]]]
+    // [USERNAME[:AUTH]]:MESSAGEUUID@ID /COMMAND [ARG [ARG [ARG [...]]]]
     // username, id, arg not /[A-Za-z0-9_\-]/
     const msg = message.trim();
-    const userAndAuth = msg.split("@")[0];
-    const userNameOrUUID = userAndAuth.split(":")[0];
-    const auth = userAndAuth.substring(userNameOrUUID.length + 1);
+    const userAuthMsgUUID = msg.split("@")[0];
+
+    const uamu = userAuthMsgUUID.split(":");
+    const userNameOrUUID = uamu[0];
+    const auth = uamu[1];
+    const msgUUID = uamu[2];
 
     const roomCommandOrMessage = msg.split("@")[1];
     const roomNameOrUUID = roomCommandOrMessage.split(" ")[0];
@@ -83,7 +86,7 @@ export class MessageParserService {
       throw new Error("Invalid password");
     }
 
-    return new Message(content, userID, roomID, new Date());
+    return new Message(content, userID, roomID, new Date(), msgUUID);
   }
 }
 

@@ -1,0 +1,3 @@
+const socketCommandReducer = (state, action) => {
+  // ...
+};

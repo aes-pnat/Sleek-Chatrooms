@@ -7,8 +7,8 @@ export type APIMessage = {
   userSenderName: string;
   userSenderID: string;
   data: string;
-  commandReturnType: string | null;
   timestamp: string;
+  respondingToUUID: string | null;
 };
 
 export function wait(ms: number) {

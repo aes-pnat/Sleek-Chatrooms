@@ -2,6 +2,14 @@ import { Server, Socket } from "socket.io";
 import App from "../src/Sleek";
 import { APIMessage } from "../utils";
 
+type MessageSendableType = {
+  username: string;
+  password: string;
+  id: string;
+  room: string;
+  content: string;
+};
+
 const io = new Server({
   cors: {
     origin: "http://localhost:3000",
@@ -11,22 +19,9 @@ const io = new Server({
 let socketStore: { socket: Socket; uid: string }[] = [];
 
 const websocketCallback = async (apiMessage: APIMessage): Promise<void> => {
-  const alert = {
-    isBotMessage: apiMessage.isBot,
-    roomName: apiMessage.roomName,
-    roomID: apiMessage.roomID,
-    userRecipient: apiMessage.userRecipientName,
-    userRecipientID: apiMessage.userRecipientID,
-    userSender: apiMessage.userSenderName,
-    userSenderID: apiMessage.userSenderID,
-    data: apiMessage.data,
-    commandReturnType: apiMessage.commandReturnType,
-    timestamp: apiMessage.timestamp,
-  };
-
   socketStore
     .filter((s) => s.uid === apiMessage.userRecipientName)
-    .forEach((s) => s.socket.emit("alert", alert));
+    .forEach((s) => s.socket.emit("alert", apiMessage));
 };
 
 App.setOutputChannel(websocketCallback);
@@ -43,9 +38,15 @@ io.on("connection", (socket: Socket) => {
   console.log("New client connected");
   console.log(socketStore.length);
 
-  socket.on("message", (msg: string) => {
+  // socket.on("message", (msg: string) => {
+  //   console.log(msg);
+  //   acceptMessage(msg, socket);
+  // });
+
+  socket.on("message", (msg: MessageSendableType) => {
     console.log(msg);
-    acceptMessage(msg, socket);
+    const fullMessage = `${msg.username}:${msg.password}:${msg.id}@${msg.room} ${msg.content}`;
+    acceptMessage(fullMessage, socket);
   });
 
   socket.on("fill", () => {

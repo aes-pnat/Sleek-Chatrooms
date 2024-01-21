@@ -14,7 +14,8 @@ const darkTheme: ThemeOptions = createTheme({
   components: {
     MuiCssBaseline: {
       styleOverrides: (themeParam) => ({
-        body: themeParam.palette.mode === "dark" ? darkScrollbar() : null,
+        // body: themeParam.palette.mode === "dark" ? darkScrollbar() : null,
+        body: darkScrollbar(),
       }),
     },
   },
@@ -23,12 +24,12 @@ const darkTheme: ThemeOptions = createTheme({
 const lightTheme: ThemeOptions = createTheme({
   palette: {
     mode: "light",
-    // primary: {
-    //   main: "#3f51b5",
-    // },
-    // secondary: {
-    //   main: "#f50057",
-    // },
+    primary: {
+      main: "#3f51b5",
+    },
+    secondary: {
+      main: "#f50057",
+    },
   },
 });
 

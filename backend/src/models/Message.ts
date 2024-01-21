@@ -1,23 +1,24 @@
+const crypto = require("crypto");
 export class Message {
   public content: string;
   public senderID: string;
   public roomID: string;
   public datetime: Date | undefined;
   public isCommand: boolean;
-  public commandReturnType: string | null;
+  public uuid: string;
 
   constructor(
     content: string,
     senderID: string,
     roomID: string,
     datetime: Date | undefined = undefined,
-    commandReturnType: string | null = null
+    uuid: string = crypto.randomUUID()
   ) {
     this.content = content;
     this.senderID = senderID;
     this.roomID = roomID;
     this.datetime = datetime;
-    this.commandReturnType = commandReturnType;
+    this.uuid = uuid;
     this.isCommand = content.startsWith("/");
   }
 }

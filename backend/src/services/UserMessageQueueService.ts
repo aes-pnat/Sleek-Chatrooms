@@ -15,8 +15,8 @@ const defaultCallback = (apiMessage: APIMessage): Promise<undefined> => {
       apiMessage.userSenderName,
       apiMessage.userSenderID,
       apiMessage.data,
-      apiMessage.commandReturnType,
-      apiMessage.timestamp
+      apiMessage.timestamp,
+      apiMessage.respondingToUUID
     );
     resolve(void 0);
   });
@@ -40,7 +40,11 @@ class UserMessageQueueService {
   public callback: Function = defaultCallback;
   public state: State = { idle: true, totalMessages: 0 };
 
-  public async enqueue(userRecipientID: string, msg: Message) {
+  public async enqueue(
+    userRecipientID: string,
+    msg: Message,
+    respondingToUUID: string | null = null
+  ) {
     let userRecipient = UsersDataStore.getUserById(userRecipientID)!;
     let userSender = UsersDataStore.getUserById(msg.senderID)!;
     let room = RoomsDataStore.getRoomById(msg.roomID);
@@ -74,8 +78,8 @@ class UserMessageQueueService {
       userSenderName: userSender.name,
       userSenderID: userSender.uuid,
       data: msg.content,
-      commandReturnType: msg.commandReturnType,
       timestamp: getTimestamp(msg.datetime!),
+      respondingToUUID: respondingToUUID,
     };
 
     this.queue[room!.uuid][userRecipient.uuid].q.push(() =>

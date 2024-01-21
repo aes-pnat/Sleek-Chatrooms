@@ -4,6 +4,7 @@ import UserDataStore from "../UsersDataStore";
 import CommandExecutionerService from "./CommandExecutionerService";
 import UserMessageQueueService from "./UserMessageQueueService";
 
+const crypto = require("crypto");
 export class RoomService {
   public msgToRoom(msg: Message) {
     let sender = UserDataStore.getUserById(msg.senderID);
@@ -34,7 +35,11 @@ export class RoomService {
       let command = CommandExecutionerService.executeCommand(msg);
       if (!command) return;
       command.targetUsers.forEach((userRecipientID) => {
-        UserMessageQueueService.enqueue(userRecipientID, command!.msg);
+        UserMessageQueueService.enqueue(
+          userRecipientID,
+          command!.msg,
+          command!.respondingToUUID
+        );
       });
       if (command?.storeMsg) {
         room.messages.push(msg);
