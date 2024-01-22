@@ -1,8 +1,7 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { SocketService } from "../services/SocketService";
 import { APIMessage, MessageSendableType } from "./types";
-
-const crypto = require("crypto");
+import { v4 as uuidv4 } from "uuid";
 
 export const useSocket = (
   appCallback: (msgToReceive: APIMessage, action: string[] | null) => void
@@ -24,7 +23,7 @@ export const useSocket = (
     }
   };
 
-  const socket = new SocketService(hookCallback);
+  const socketRef = useRef<SocketService>();
 
   const send = useCallback(
     async (
@@ -33,16 +32,7 @@ export const useSocket = (
       room: string,
       content: string
     ) => {
-      // if(msg.startsWith("/list rooms")) {
-      //     return await socket.send(msg, id);
-      // } else if(msg.startsWith("/list users")) {
-      //     return await socket.send(msg, id);
-      // } else if(msg.startsWith("/list messages")) {
-      //     return await socket.send(msg, id);
-      // } else {
-
-      // }
-      const uuid = crypto.randomUUID();
+      const uuid = uuidv4();
       const completeMsg: MessageSendableType = {
         username: username,
         password: password,
@@ -50,17 +40,20 @@ export const useSocket = (
         room: room,
         content: content,
       };
-      return await socket.send(completeMsg, uuid);
+      return await socketRef.current!.send(completeMsg, uuid);
     },
     []
   );
 
   useEffect(() => {
-    socket.connect();
+    if (!socketRef.current) {
+      socketRef.current = new SocketService(hookCallback);
+    }
+    socketRef.current.connect();
     return () => {
-      socket.disconnect();
+      socketRef.current!.disconnect();
     };
   }, []);
 
-  return [socket, send];
+  return [send];
 };

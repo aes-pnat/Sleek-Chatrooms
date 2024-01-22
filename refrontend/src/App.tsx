@@ -46,7 +46,7 @@ export const App = () => {
     }
   };
 
-  const [socket, send] = useSocket(appCallback);
+  const [send] = useSocket(appCallback);
 
   useEffect(() => {}, []);
   return (
@@ -63,16 +63,7 @@ export const App = () => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          const sendable: MessageType = {
-            content: messageToSend,
-            senderName: "test",
-            senderID: "test", // unknown
-            roomName: "test",
-            roomID: "test",
-            timestamp: "test",
-            isCommand: false,
-          };
-          setMessages([...messages, sendable]);
+          send("username", "password", "general", messageToSend);
           setMessageToSend("");
         }}
       >
