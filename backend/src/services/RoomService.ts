@@ -25,7 +25,11 @@ export class RoomService {
       );
 
       room.users.forEach((userRecipientID) => {
-        UserMessageQueueService.enqueue(userRecipientID, serverMessage);
+        UserMessageQueueService.enqueue(
+          userRecipientID,
+          serverMessage,
+          serverMessage.uuid
+        );
       });
       room.messages.push(serverMessage);
     }
@@ -48,7 +52,7 @@ export class RoomService {
     } else {
       /* Message itself */
       room.users.forEach((userRecipient) => {
-        UserMessageQueueService.enqueue(userRecipient, msg);
+        UserMessageQueueService.enqueue(userRecipient, msg, msg.uuid);
       });
 
       room.messages.push(msg);

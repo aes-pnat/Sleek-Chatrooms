@@ -33,9 +33,10 @@ export class MessageParserService {
     ) {
       return new Message(
         "! User attempted to mimic SERVER, this incident will be reported !",
-        UserDataStore.getUserByName("ANONYMOUS")!.uuid,
+        UserDataStore.getUserByName("SERVER")!.uuid,
         RoomDataStore.getRoomByName("general")!.uuid,
-        new Date()
+        new Date(),
+        msgUUID
       );
     }
 
@@ -47,7 +48,13 @@ export class MessageParserService {
       roomID = roomNameOrUUID;
     } else {
       if (!RoomDataStore.getRoomByName(roomNameOrUUID)) {
-        throw new Error("Room not found");
+        return new Message(
+          "Room not found",
+          UserDataStore.getUserByName("SERVER")!.uuid,
+          RoomDataStore.getRoomByName("general")!.uuid,
+          new Date(),
+          msgUUID
+        );
       }
       roomID = RoomDataStore.getRoomByName(roomNameOrUUID)!.uuid;
     }
@@ -57,7 +64,13 @@ export class MessageParserService {
       userID = UserDataStore.getUserByName("ANONYMOUS")!.uuid;
     } else if (userNameOrUUID.match(v4)) {
       if (!UserDataStore.getUserById(userNameOrUUID)) {
-        throw new Error("User not found");
+        return new Message(
+          `User not found: ${userNameOrUUID}`,
+          UserDataStore.getUserByName("SERVER")!.uuid,
+          RoomDataStore.getRoomByName("general")!.uuid,
+          new Date(),
+          msgUUID
+        );
       }
       userID = userNameOrUUID;
     } else {
@@ -69,7 +82,13 @@ export class MessageParserService {
 
     // check if room is open and if auth is provided
     if (!auth && !RoomDataStore.getRoomById(roomID)!.open) {
-      throw new Error("Room is not open (requires authentication)");
+      return new Message(
+        "Room is not open (requires authentication)",
+        UserDataStore.getUserByName("SERVER")!.uuid,
+        RoomDataStore.getRoomByName("general")!.uuid,
+        new Date(),
+        msgUUID
+      );
     }
 
     // if user entered an username and exists within the store with passwords, check password validity

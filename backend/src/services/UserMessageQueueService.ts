@@ -43,7 +43,7 @@ class UserMessageQueueService {
   public async enqueue(
     userRecipientID: string,
     msg: Message,
-    respondingToUUID: string | null = null
+    respondingToUUID: string
   ) {
     let userRecipient = UsersDataStore.getUserById(userRecipientID)!;
     let userSender = UsersDataStore.getUserById(msg.senderID)!;
@@ -79,6 +79,7 @@ class UserMessageQueueService {
       userSenderID: userSender.uuid,
       data: msg.content,
       timestamp: getTimestamp(msg.datetime!),
+      id: msg.uuid,
       respondingToUUID: respondingToUUID,
     };
 

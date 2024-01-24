@@ -6,7 +6,17 @@ export class SocketService {
     string,
     {
       msg: MessageSendableType;
-      p: Promise<MessageSendableType>;
+      p: Promise<{
+        sentMsg: MessageSendableType | null;
+        msgToReceive: APIMessage;
+      }> | null;
+      resF:
+        | ((value: {
+            sentMsg: MessageSendableType | null;
+            msgToReceive: APIMessage;
+          }) => void)
+        | null;
+      rejF: ((reason?: any) => void) | null;
     }
   > = {};
 
@@ -15,85 +25,130 @@ export class SocketService {
     autoConnect: false,
   });
 
-  public callback: (
-    sentMsg: MessageSendableType | null,
-    msgToReceive: APIMessage
-  ) => void;
+  callback: (val: {
+    sentMsg: MessageSendableType | null;
+    msgToReceive: APIMessage;
+  }) => void;
 
   constructor(
-    callback: (
-      sentMsg: MessageSendableType | null,
-      msgToReceive: APIMessage
-    ) => void = console.log
+    callback: (val: {
+      sentMsg: MessageSendableType | null;
+      msgToReceive: APIMessage;
+    }) => void = console.log
   ) {
     this.callback = callback;
   }
 
-  private handleConnect() {
+  handleConnect() {
     console.log("Connected to server");
   }
 
-  private handleDisconnect() {
+  handleDisconnect() {
     console.log("Disconnected from server");
   }
 
-  private handleAlert(msgToReceive: APIMessage) {
-    if (msgToReceive.respondingToUUID === null) {
-      this.callback(null, msgToReceive);
-      return;
-    }
+  handleAlert(msgToReceive: APIMessage) {
+    /* 
+    respondingToUUID always exists, indicating either the ID of the same message 
+    or the ID of the command message to which this message is responding.
+    If the ID isn't in the repository, it means that the message is sent by some other user
 
-    const primaryMessage = this._repository[msgToReceive.respondingToUUID];
+    Handle incoming message differently? Is callback needed?
+    Probably, since handleAlert gets called autonomously, i.e.
+    it needs some way to alert the app that a message has been received
 
-    if (primaryMessage === undefined) {
-      this.callback(null, msgToReceive);
+    Is there some flaw in not using the callback for responding messages, but only
+    unannounced ones?
+    */
+    console.log(this._repository);
+    if (!(msgToReceive.respondingToUUID in this._repository)) {
+      this.callback({ sentMsg: null, msgToReceive: msgToReceive });
     } else {
-      primaryMessage.p.then(
-        (sentMsg: MessageSendableType) => {
-          if (sentMsg.content !== primaryMessage.msg.content) {
-            throw new Error(
-              `Message ID does not match \n\tExpected: ${primaryMessage.msg} \n\tReceived: ${sentMsg}`
-            );
-          }
-          this.callback(sentMsg, msgToReceive);
-        },
-        (err: string) => {
-          console.log(err);
-        }
-      );
+      const primaryMessage = this._repository[msgToReceive.respondingToUUID];
+      console.log("outside promise");
+
+      primaryMessage.resF!({
+        sentMsg: primaryMessage.msg,
+        msgToReceive: msgToReceive,
+      });
+
+      delete this._repository[msgToReceive.respondingToUUID];
+      // primaryMessage
+      //   .p!.then((sentMsg: MessageSendableType) => {
+      //     if (sentMsg.content !== primaryMessage.msg.content) {
+      //       throw new Error(
+      //         `Message ID does not match \n\tExpected: ${primaryMessage.msg} \n\tReceived: ${sentMsg}`
+      //       );
+      //     }
+      //     return Promise.resolve({
+      //       sentMsg: sentMsg,
+      //       msgToReceive: msgToReceive,
+      //     });
+      //   })
+      //   .catch((err: string) => {
+      //     return err;
+      //   });
     }
   }
 
-  public async send(
+  async send(
     msgToSend: MessageSendableType,
     id: string
-  ): Promise<MessageSendableType> {
-    const p: Promise<MessageSendableType> = new Promise((res, rej) => {
-      try {
-        res(msgToSend);
-      } catch (e) {
-        rej(e);
-      }
-    });
+  ): Promise<{
+    sentMsg: MessageSendableType | null;
+    msgToReceive: APIMessage;
+  }> {
+    // let resolve: (value: MessageSendableType) => void;
+    // let reject: (reason?: any) => void;
 
-    this._repository[id] = { msg: msgToSend, p: p };
+    this._repository[id] = {
+      msg: msgToSend,
+      p: null,
+      resF: null,
+      rejF: null,
+    };
+
+    const p: Promise<{
+      sentMsg: MessageSendableType | null;
+      msgToReceive: APIMessage;
+    }> = Promise.race([
+      new Promise<{
+        sentMsg: MessageSendableType | null;
+        msgToReceive: APIMessage;
+      }>((res, rej) => {
+        // resolve = res;
+        // reject = rej;
+        this._repository[id].resF = res;
+        this._repository[id].rejF = rej;
+      }),
+      // new Promise<{sentMsg: MessageSendableType | null,
+      //  msgToReceive: APIMessage}>((res) => {
+      //   setTimeout(() => {
+      //     console.log("Promise timed out after 5 seconds.");
+      //     res(msgToSend);
+      //   }, 5000);
+      // }),
+    ]);
+
+    this._repository[id].p = p;
     this._socket.emit("message", msgToSend);
 
     return p;
   }
 
-  public connect() {
-    this._socket.on("connect", this.handleConnect);
-    this._socket.on("disconnect", this.handleDisconnect);
-    this._socket.on("alert", this.handleAlert);
+  connect() {
+    this._socket.on("connect", this.handleConnect.bind(this));
+    this._socket.on("disconnect", this.handleDisconnect.bind(this));
+    this._socket.on("alert", this.handleAlert.bind(this));
     this._socket.connect();
   }
 
-  public disconnect() {
+  disconnect() {
+    this._repository = {};
     this._socket.disconnect();
-    this._socket.off("connect", this.handleConnect);
-    this._socket.off("disconnect", this.handleDisconnect);
-    this._socket.off("alert", this.handleAlert);
+    this._socket.off("connect", this.handleConnect.bind(this));
+    this._socket.off("disconnect", this.handleDisconnect.bind(this));
+    this._socket.off("alert", this.handleAlert.bind(this));
   }
 }
 

@@ -19,9 +19,21 @@ const io = new Server({
 let socketStore: { socket: Socket; uid: string }[] = [];
 
 const websocketCallback = async (apiMessage: APIMessage): Promise<void> => {
+  const socketsFiltered = socketStore.filter(
+    (s) => s.uid === apiMessage.userRecipientName
+  );
+  console.log(
+    `REPLYING to ${apiMessage.userRecipientName} - found ${socketsFiltered.length} sockets to reply into!`
+  );
   socketStore
     .filter((s) => s.uid === apiMessage.userRecipientName)
-    .forEach((s) => s.socket.emit("alert", apiMessage));
+    .forEach((s) => {
+      try {
+        s.socket.emit("alert", apiMessage);
+      } catch (e) {
+        console.log(e);
+      }
+    });
 };
 
 App.setOutputChannel(websocketCallback);
@@ -29,8 +41,8 @@ App.setOutputChannel(websocketCallback);
 const acceptMessage = (msg: string, socket: Socket) => {
   App.acceptMessage(msg);
   const un = msg.split("@")[0].split(":")[0];
-  if (!socketStore.find((x) => x.uid === un)) {
-    socketStore.push({ socket, uid: un });
+  if (!socketStore.find((x) => x.uid === un && x.socket === socket)) {
+    socketStore.push({ socket: socket, uid: un });
   }
 };
 
@@ -81,6 +93,7 @@ io.on("connection", (socket: Socket) => {
 
   socket.on("disconnect", () => {
     console.log("Client disconnected");
+    //socketStore = socketStore.filter((s) => s.socket !== socket);
   });
 });
 

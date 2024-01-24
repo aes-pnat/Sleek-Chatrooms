@@ -8,7 +8,8 @@ export type APIMessage = {
   userSenderID: string;
   data: string;
   timestamp: string;
-  respondingToUUID: string | null;
+  id: string;
+  respondingToUUID: string;
 };
 
 export type MessageType = {
@@ -19,6 +20,7 @@ export type MessageType = {
   roomID: string;
   timestamp: string;
   isCommand: boolean;
+  id: string;
 };
 
 export type MessageSendableType = {
