@@ -2,7 +2,6 @@ import { io, Socket } from "socket.io-client";
 import { useEffect, useState, useCallback } from "react";
 import { UserType, MessageType, APIResponse } from "./types";
 
-const crypto = require("crypto");
 const socket = io("http://localhost:8080", {
   transports: ["websocket"],
   autoConnect: false,

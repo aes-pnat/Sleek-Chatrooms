@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useReducer, useCallback } from "react";
 import "./App.css";
-import { useSocket } from "./utils/socketHook-OLD";
+import { useSocket } from "./utils/socketHook";
 import { APIMessage, MessageType } from "./utils/types";
 
 export const App = () => {
@@ -10,7 +10,11 @@ export const App = () => {
   const [users, setUsers] = useState<Record<string, string>>({});
 
   const appCallback = useCallback(
-    (msgToReceive: APIMessage, action: string[] | null) => {
+    (
+      msgToReceive: APIMessage,
+      action: string[] | null,
+      currentMessages: MessageType[]
+    ) => {
       const msgToReceiveAsMessageType: MessageType = {
         content: msgToReceive.data,
         senderName: msgToReceive.userSenderName,
@@ -21,8 +25,13 @@ export const App = () => {
         isCommand: action !== null,
         id: msgToReceive.id,
       };
+      console.log(action);
       if (action === null) {
-        setMessages([...messages, msgToReceiveAsMessageType]);
+        const newMessages: MessageType[] = [
+          ...currentMessages,
+          msgToReceiveAsMessageType,
+        ];
+        setMessages(newMessages);
         return;
       }
 
@@ -55,7 +64,7 @@ export const App = () => {
     setMessageToSend("");
   };
 
-  const [sendPacket] = useSocket(appCallback);
+  const [sendPacket] = useSocket([appCallback, messages]);
 
   useEffect(() => {}, []);
   return (

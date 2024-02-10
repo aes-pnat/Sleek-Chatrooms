@@ -60,12 +60,10 @@ export class SocketService {
     Is there some flaw in not using the callback for responding messages, but only
     unannounced ones?
     */
-    console.log(this._repository);
     if (!(msgToReceive.respondingToUUID in this._repository)) {
       this.callback({ sentMsg: null, msgToReceive: msgToReceive });
     } else {
       const primaryMessage = this._repository[msgToReceive.respondingToUUID];
-      console.log("outside promise");
 
       primaryMessage.resF!({
         sentMsg: primaryMessage.msg,
