@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useReducer, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "./App.css";
 import { useSocket } from "./utils/socketHook";
 import { APIMessage, MessageType } from "./utils/types";
@@ -62,6 +62,18 @@ export const App = () => {
     e.preventDefault();
     sendPacket("username", "password", "general", messageToSend);
     setMessageToSend("");
+  };
+
+  const listRooms = () => {
+    sendPacket("username", "password", "general", "/list rooms");
+  };
+
+  const listUsers = () => {
+    sendPacket("username", "password", "general", "/list users");
+  };
+
+  const listMessages = () => {
+    sendPacket("username", "password", "general", "/list messages");
   };
 
   const [sendPacket] = useSocket([appCallback, messages]);

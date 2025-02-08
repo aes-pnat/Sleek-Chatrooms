@@ -30,3 +30,8 @@ export type MessageSendableType = {
   room: string;
   content: string;
 };
+
+export type UserType = {
+  username: string;
+  password: string;
+};
